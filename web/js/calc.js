@@ -22,15 +22,25 @@ document.addEventListener("DOMContentLoaded", function () {
     solveForSelect.value = currentSolveFor; // Set initial value
     solveForSelect.addEventListener("change", updateSolveForVariable);
 
-    function showDEQ() {
-        const deq = document.getElementById('deq_mathtml');
-        deq.style.display = "inline";
+
+    function updateVisualization(calculationResults) {
+        // Process calculation results into a format suitable for visualization
+        const visualizationData = processDataForVisualization(calculationResults);
+        createSolarSystemMap(visualizationData);
     }
 
-    function hideDEQ() {
-        const deq = document.getElementById('deq_mathtml');
-        deq.style.display = "none";
+    function processDataForVisualization(results) {
+        // Convert calculation results into a format suitable for D3.js
+        // This is a placeholder implementation
+        return {
+            stars: [
+                { radius: 5, color: "yellow" },
+                { radius: 3, color: "orange" },
+                // ... more stars based on calculation
+            ]
+        };
     }
+
 
     function updateSolveForVariable() {
         const previousSolveFor = currentSolveFor;
