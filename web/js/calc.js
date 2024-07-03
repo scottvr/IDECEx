@@ -22,25 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
     solveForSelect.value = currentSolveFor; // Set initial value
     solveForSelect.addEventListener("change", updateSolveForVariable);
 
-
-    function updateVisualization(calculationResults) {
-        // Process calculation results into a format suitable for visualization
-        const visualizationData = processDataForVisualization(calculationResults);
-        createSolarSystemMap(visualizationData);
-    }
-
-    function processDataForVisualization(results) {
-        // Convert calculation results into a format suitable for D3.js
-        // This is a placeholder implementation
-        return {
-            stars: [
-                { radius: 5, color: "yellow" },
-                { radius: 3, color: "orange" },
-                // ... more stars based on calculation
-            ]
-        };
-    }
-
+    document.getElementById('randomize-button').addEventListener('click', randomizeUnlocked);
 
     function updateSolveForVariable() {
         const previousSolveFor = currentSolveFor;
@@ -92,3 +74,46 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize the interface
     updateSolveForVariable();
 });
+
+function updateVisualization(calculationResults) {
+    // Process calculation results into a format suitable for visualization
+    const visualizationData = processDataForVisualization(calculationResults);
+    createSolarSystemMap(visualizationData);
+}
+
+function processDataForVisualization(results) {
+    // Convert calculation results into a format suitable for D3.js
+    // This is a placeholder implementation
+    return {
+        stars: [
+            { radius: 5, color: "yellow" },
+            { radius: 3, color: "orange" },
+            // ... more stars based on calculation
+        ]
+    };
+}
+
+function randomizeUnlocked() {
+    variables.forEach(variable => {
+        if (variable !== currentSolveFor && !locks[variable].checked) {
+            inputs[variable].value = getRandomValue(variable);
+        }
+    });
+    calculate();
+}
+
+function getRandomValue(variable) {
+    // Define reasonable ranges for each variable
+    const ranges = {
+        R_star: [1, 10],
+        f_p: [0.1, 1],
+        n_e: [0.1, 5],
+        f_l: [0.01, 1],
+        f_i: [0.01, 1],
+        f_c: [0.01, 1],
+        L: [100, 10000],
+        N: [1, 1000000]
+    };
+    const [min, max] = ranges[variable];
+    return (Math.random() * (max - min) + min).toFixed(4);
+}
