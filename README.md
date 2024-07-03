@@ -7,7 +7,7 @@ The immediate implementation that came to mind would be to just allow the user o
 
 But, since the initial values are hopefully sane, but admittedly “WAG” numbers, what new values would be appropriate for the variables not in focus? Random WAGs? Increments/decrements based on some rules? Update all of the variable values when calculating? How would the person who expressed the desire for a more flexible Drake Equation Calculator want to explore this?
 
-I started putting some ideas into a text document and threw a small initial barebones calculator up on a webserver. I'm putting it here just to try to be more disciplined and less sloppybwoth personal projects. 
+I started putting some ideas into a text document and threw a small initial barebones calculator up on a webserver. I'm putting it here just to try to be more disciplined and less sloppy with  personal projects. 
 
 ______
 Pasting my informal "requirements doc" and other ramblings pertaining to The IDECEx below. 
