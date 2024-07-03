@@ -1,4 +1,4 @@
-// In IDECEx_visualizations.js
+// IDECEx visualizations.js
 
 function createComparativeBarChart(data) {
     const ctx = document.getElementById('comparativeBarChart').getContext('2d');
