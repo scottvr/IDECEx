@@ -67,6 +67,22 @@ document.addEventListener("DOMContentLoaded", function () {
         if (solveFor === "N") {
             return product;
         } else {
+            if (product === 0) {
+                showError("Cannot divide by zero. Please adjust your inputs.");
+                return 0;
+            }
+            return (values.N || 0) / product;
+        }
+    }
+
+    function solveEquation(solveFor, values) {
+        const product = variables.reduce((acc, variable) => {
+            return (variable === solveFor || variable === "N") ? acc : acc * values[variable];
+        }, 1);
+
+        if (solveFor === "N") {
+            return product;
+        } else {
             return (values.N || 0) / product;
         }
     }
@@ -74,6 +90,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize the interface
     updateSolveForVariable();
 });
+
+function showError(message) {
+    const errorElement = document.getElementById('error-message');
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+    setTimeout(() => {
+        errorElement.style.display = 'none';
+    }, 5000);
+}
 
 function updateVisualization(calculationResults) {
     // Process calculation results into a format suitable for visualization
