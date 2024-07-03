@@ -1,4 +1,3 @@
-// IDECEx visualizations.js
 
 function createComparativeBarChart(data) {
     const ctx = document.getElementById('comparativeBarChart').getContext('2d');
@@ -54,7 +53,7 @@ function createProbabilityDistributionCurve(data) {
             scales: {
                 x: { title: { display: true, text: data.xLabel } },
                 y: { title: { display: true, text: 'Probability' } }
-            }k
+            }
         }
     });
 }
