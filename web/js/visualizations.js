@@ -1,4 +1,4 @@
-// IDECEx visualizations.js
+// In IDECEx_visualizations.js
 
 function createComparativeBarChart(data) {
     const ctx = document.getElementById('comparativeBarChart').getContext('2d');
@@ -54,7 +54,7 @@ function createProbabilityDistributionCurve(data) {
             scales: {
                 x: { title: { display: true, text: data.xLabel } },
                 y: { title: { display: true, text: 'Probability' } }
-            }k
+            }
         }
     });
 }
@@ -97,4 +97,24 @@ function createSolarSystemMap(data) {
             .attr("cx", d => d.x)
             .attr("cy", d => d.y);
     });
+}
+
+// In your main JavaScript file (IDECEx_calc.js)
+
+function updateVisualization(calculationResults) {
+    // Process calculation results into a format suitable for visualization
+    const visualizationData = processDataForVisualization(calculationResults);
+    createSolarSystemMap(visualizationData);
+}
+
+function processDataForVisualization(results) {
+    // Convert calculation results into a format suitable for D3.js
+    // This is a placeholder implementation
+    return {
+        stars: [
+            { radius: 5, color: "yellow" },
+            { radius: 3, color: "orange" },
+            // ... more stars based on calculation
+        ]
+    };
 }
