@@ -5,16 +5,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const divs = {};
     let currentSolveFor = "N"; // Initial solve-for variable
 
+    const debouncedCalculate = debounce(calculate, 300);
+    
     variables.forEach(variable => {
         inputs[variable] = document.getElementById(`${variable}_input`);
         locks[variable] = document.getElementById(`${variable}_lock`);
         divs[variable] = document.getElementById(`${variable}_div`);
-        inputs[variable].addEventListener("input", calculate);
+        inputs[variable].addEventListener("input", debouncedCalculate);
         if (locks[variable]) {
-            //// temporarily disable the eventListener
-            // locks[variable].addEventListener("change", calculate);
-            //// temporarily hide the locks until I remember what they were there to enmable in the first place
-            locks[variable].style.display = "none";
+            locks[variable].addEventListener("change", debouncedCalculate);
         }
     });
 
@@ -45,20 +44,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
         calculate();
     }
+    
+    function validateInput(variable, value) {
+        const ranges = {
+            R_star: [0, Infinity],
+            f_p: [0, 1],
+            n_e: [0, Infinity],
+            f_l: [0, 1],
+            f_i: [0, 1],
+            f_c: [0, 1],
+            L: [0, Infinity],
+            N: [0, Infinity]
+        };
+        const [min, max] = ranges[variable];
+        return value >= min && value <= max;
+    }
 
     function calculate() {
         const values = {};
+        let isValid = true;
 
         variables.forEach(variable => {
             if (variable !== currentSolveFor && !inputs[variable].readOnly) {
-                values[variable] = parseFloat(inputs[variable].value) || 0;
-            }
+                const value = parseFloat(inputs[variable].value) || 0;
+                if (validateInput(variable, value)) {
+                    values[variable] = value;
+                } else {
+                    isValid = false;
+                    showError(`Invalid input for ${variable}. Please enter a value between ${ranges[variable][0]} and ${ranges[variable][1]}.`);
+                }
+           }
         });
 
-        const result = solveEquation(currentSolveFor, values);
-        inputs[currentSolveFor].value = result.toFixed(4);
+        if (isValid) {
+            const result = solveEquation(currentSolveFor, values);
+            inputs[currentSolveFor].value = result.toFixed(4);
+        }
     }
-
+   
     function solveEquation(solveFor, values) {
         const product = variables.reduce((acc, variable) => {
             return (variable === solveFor || variable === "N") ? acc : acc * values[variable];
@@ -67,6 +90,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (solveFor === "N") {
             return product;
         } else {
+            if (product === 0) {
+                showError("Cannot divide by zero. Please adjust your inputs.");
+                return 0;
+            }
             return (values.N || 0) / product;
         }
     }
@@ -74,6 +101,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize the interface
     updateSolveForVariable();
 });
+
+function showError(message) {
+    const errorElement = document.getElementById('error-message');
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+    setTimeout(() => {
+        errorElement.style.display = 'none';
+    }, 5000);
+}
 
 function updateVisualization(calculationResults) {
     // Process calculation results into a format suitable for visualization
@@ -116,4 +152,16 @@ function getRandomValue(variable) {
     };
     const [min, max] = ranges[variable];
     return (Math.random() * (max - min) + min).toFixed(4);
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
