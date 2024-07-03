@@ -5,31 +5,72 @@ document.addEventListener("DOMContentLoaded", function () {
     variables.forEach(variable => {
         inputs[variable] = document.getElementById(`${variable}_input`);
         locks[variable] = document.getElementById(`${variable}_lock`);
-        inputs[variable].addEventListener("input", calculateN);
-        locks[variable].addEventListener("change", calculateN);
+        inputs[variable].addEventListener("input", calculate);
+        locks[variable].addEventListener("change", calculate);
     });
     const N_result = document.getElementById("N_result");
+    const solveForSelect = document.getElementById("solve-for-select");
+    const form = document.getElementById("drake-equation-form");
+    const resetButton = document.getElementById("reset-button");
 
-    function calculateN() {
-        let R_star = parseFloat(inputs["R_star"].value);
-        let f_p = parseFloat(inputs["f_p"].value);
-        let n_e = parseFloat(inputs["n_e"].value);
-        let f_l = parseFloat(inputs["f_l"].value);
-        let f_i = parseFloat(inputs["f_i"].value);
-        let f_c = parseFloat(inputs["f_c"].value);
-        let L = parseFloat(inputs["L"].value);
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        calculate();
+    });
 
-        // Calculate N based on unlocked variables
-        let N = R_star * f_p * n_e * f_l * f_i * f_c * L;
-        N_result.value = N.toFixed(2);
+    solveForSelect.addEventListener("change", calculate);
+    resetButton.addEventListener("click", resetToDefaults);
 
-        // Recalculate if any variable is left blank and unlocked
-        variables.forEach(variable => {
-            if (!locks[variable].checked && inputs[variable].value === "") {
-                inputs[variable].value = (N / (R_star * f_p * n_e * f_l * f_i * f_c * L)).toFixed(2);
+    function calculate() {
+        const targetVariable = solveForSelect.value;
+        const values = solveEquation(targetVariable);
+        
+        variables.forEach(v => {
+            if (!locks[v].checked) {
+                inputs[v].value = values[v].toFixed(4);
             }
         });
+        N_result.value = values.N.toFixed(4);
     }
 
-    calculateN();
+    function solveEquation(targetVariable) {
+        const values = {};
+        let product = 1;
+
+        variables.forEach(v => {
+            if (v !== targetVariable) {
+                values[v] = parseFloat(inputs[v].value) || 0;
+                product *= values[v];
+            }
+        });
+
+        if (targetVariable === "N") {
+            values.N = product;
+        } else {
+            values.N = parseFloat(N_result.value) || 0;
+            values[targetVariable] = values.N / product;
+        }
+
+        return values;
+    }
+
+    function resetToDefaults() {
+        const defaults = {
+            R_star: 1, f_p: 0.2, n_e: 1, f_l: 0.1, f_i: 0.01, f_c: 0.1, L: 1000
+        };
+        variables.forEach(v => {
+            inputs[v].value = defaults[v];
+            locks[v].checked = false;
+        });
+        solveForSelect.value = "N";
+        calculate();
+    }
+
+    function showMessage(message, isError = false) {
+        const messageContainer = document.getElementById("message-container");
+        messageContainer.textContent = message;
+        messageContainer.className = isError ? "error" : "success";
+    }
+
+    calculate();
 });
