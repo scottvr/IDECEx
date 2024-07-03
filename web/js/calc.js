@@ -14,11 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
         // inputs[variable].addEventListener("input", debouncedCalculate);
         inputs[variable].addEventListener("input", calculate);
         if (locks[variable]) {
-            //// temporarily disable the eventListener
             // locks[variable].addEventListener("change", debouncedCalculate);
-            // locks[variable].addEventListener("change", calculate);
-            //// temporarily hide the locks until I remember what they were there to enmable in the first place
-            locks[variable].style.display = "none";
+            locks[variable].addEventListener("change", calculate);
+            // //// temporarily hide the locks until I remember what they were there to enmable in the first place
+            // locks[variable].style.display = "none";
         }
     });
 
@@ -26,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
     solveForSelect.value = currentSolveFor; // Set initial value
     solveForSelect.addEventListener("change", updateSolveForVariable);
 
+    document.getElementById('reset-button').addEventListener('click', resetToDefaults);
     document.getElementById('randomize-button').addEventListener('click', randomizeUnlocked);
 
     function updateSolveForVariable() {
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
         divs[previousSolveFor].className = 'variable-group';
         inputs[previousSolveFor].readOnly = false;
         if (locks[previousSolveFor]) {
-        //    locks[previousSolveFor].style.display = "inline";
+            locks[previousSolveFor].style.display = "inline";
         }
 
         // Update UI for new solve-for variable
@@ -103,6 +103,33 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function resetToDefaults() {
+        const defaults = {
+            R_star: 1, f_p: 0.2, n_e: 1, f_l: 0.1, f_i: 0.01, f_c: 0.1, L: 1000
+        };
+        variables.forEach(v => {
+            inputs[v].value = defaults[v];
+            locks[v].checked = false;
+        });
+        solveForSelect.value = "N";
+        calculate();
+    }
+
+    function showMessage(message, isError = false) {
+        const messageContainer = document.getElementById("message-container");
+        messageContainer.textContent = message;
+        messageContainer.className = isError ? "error" : "success";
+    }
+
+    function randomizeUnlocked() {
+        variables.forEach(variable => {
+            if (variable !== currentSolveFor && !locks[variable].checked) {
+                inputs[variable].value = getRandomValue(variable);
+            }
+        });
+    calculate();
+    }
+
     // Initialize the interface
     updateSolveForVariable();
 });
@@ -134,15 +161,6 @@ function processDataForVisualization(results) {
             // ... more stars based on calculation
         ]
     };
-}
-
-function randomizeUnlocked() {
-    variables.forEach(variable => {
-        if (variable !== currentSolveFor && !locks[variable].checked) {
-            inputs[variable].value = getRandomValue(variable);
-        }
-    });
-    calculate();
 }
 
 function getRandomValue(variable) {
