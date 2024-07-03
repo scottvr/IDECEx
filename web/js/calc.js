@@ -11,9 +11,14 @@ document.addEventListener("DOMContentLoaded", function () {
         inputs[variable] = document.getElementById(`${variable}_input`);
         locks[variable] = document.getElementById(`${variable}_lock`);
         divs[variable] = document.getElementById(`${variable}_div`);
-        inputs[variable].addEventListener("input", debouncedCalculate);
+        // inputs[variable].addEventListener("input", debouncedCalculate);
+        inputs[variable].addEventListener("input", calculate);
         if (locks[variable]) {
-            locks[variable].addEventListener("change", debouncedCalculate);
+            //// temporarily disable the eventListener
+            // locks[variable].addEventListener("change", debouncedCalculate);
+            // locks[variable].addEventListener("change", calculate);
+            //// temporarily hide the locks until I remember what they were there to enmable in the first place
+            locks[variable].style.display = "none";
         }
     });
 
@@ -31,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
         divs[previousSolveFor].className = 'variable-group';
         inputs[previousSolveFor].readOnly = false;
         if (locks[previousSolveFor]) {
-            locks[previousSolveFor].style.display = "inline";
+        //    locks[previousSolveFor].style.display = "inline";
         }
 
         // Update UI for new solve-for variable
@@ -44,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         calculate();
     }
-    
+
     function validateInput(variable, value) {
         const ranges = {
             R_star: [0, Infinity],
@@ -73,15 +78,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     isValid = false;
                     showError(`Invalid input for ${variable}. Please enter a value between ${ranges[variable][0]} and ${ranges[variable][1]}.`);
                 }
-           }
+            }
         });
 
         if (isValid) {
             const result = solveEquation(currentSolveFor, values);
             inputs[currentSolveFor].value = result.toFixed(4);
         }
-    }
-   
+    }    
+
     function solveEquation(solveFor, values) {
         const product = variables.reduce((acc, variable) => {
             return (variable === solveFor || variable === "N") ? acc : acc * values[variable];
@@ -101,6 +106,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize the interface
     updateSolveForVariable();
 });
+
+
 
 function showError(message) {
     const errorElement = document.getElementById('error-message');
