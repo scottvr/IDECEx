@@ -5,16 +5,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const divs = {};
     let currentSolveFor = "N"; // Initial solve-for variable
 
+    const debouncedCalculate = debounce(calculate, 300);
+    
     variables.forEach(variable => {
         inputs[variable] = document.getElementById(`${variable}_input`);
         locks[variable] = document.getElementById(`${variable}_lock`);
         divs[variable] = document.getElementById(`${variable}_div`);
-        inputs[variable].addEventListener("input", calculate);
+        inputs[variable].addEventListener("input", debouncedCalculate);
         if (locks[variable]) {
-            //// temporarily disable the eventListener
-            // locks[variable].addEventListener("change", calculate);
-            //// temporarily hide the locks until I remember what they were there to enmable in the first place
-            locks[variable].style.display = "none";
+            locks[variable].addEventListener("change", debouncedCalculate);
         }
     });
 
