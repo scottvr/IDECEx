@@ -1,5 +1,7 @@
 # IDECEx
 Interactive Drake Equation Calculator/Explorer
+
+The most current dev branch can be played with in action at [killsignal.net/IDECEx](https://www.killsignal.net/IDECEx/web/)
 ______________
 … inspired by a conversation I was having with someone about recognizing an “alien” intelligence in which he brought up the Drake Equation and gave some value for N based on some common “WAG” (wild-ass guess) values for the other variables and showed me an online Drake Equation Calculator, then commenting: “what I’d like to do is be able to give it [the calculator] the number of civilizations (N), and see what probabilities you’d need to …”
 
@@ -73,8 +75,8 @@ ______
 - Start with default WAG values for each variable and compute 
 
 ### User Interaction:
-- If a user inputs a value for $N$, the system identifies it as the target variable to solve for.
-- Based on which fields are locked and the target variable, the system rearranges the equation and computes the necessary value.
+- If a user inputs a value for $N$, the system identifies it as the target variable to solve for. -- _well that's poorly worded and essentially backwards from what really happens.  i address this later in the document with a clarification, but this is a cerebral flatulence, sorta related to the presently disabled (invosible, but there) lock checkboxes.)_
+- Based on which fields are locked and the target variable, the system rearranges the equation and computes the necessary value. -- _yeah mostly thebsame here.. ignore this not well-phrased last few lines_
 
 ### Dynamic Feedback: 
 - Use real-time updates to show the impact of changes immediately. This helps users understand the relationships between variables better.
