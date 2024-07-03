@@ -1,5 +1,7 @@
 # IDECEx
 Interactive Drake Equation Calculator/Explorer
+
+The most current dev branch can be played with in action at [killsignal.net/IDECEx](https://www.killsignal.net/IDECEx/web/)
 ______________
 … inspired by a conversation I was having with someone about recognizing an “alien” intelligence in which he brought up the Drake Equation and gave some value for N based on some common “WAG” (wild-ass guess) values for the other variables and showed me an online Drake Equation Calculator, then commenting: “what I’d like to do is be able to give it [the calculator] the number of civilizations (N), and see what probabilities you’d need to …”
 
