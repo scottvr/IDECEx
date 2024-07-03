@@ -10,7 +10,8 @@ But, since the initial values are hopefully sane, but admittedly “WAG” numbe
 I started putting some ideas into a text document and threw a small initial barebones calculator up on a webserver. I'm putting it here just to try to be more disciplined and less sloppy with  personal projects. 
 
 ______
-Pasting my informal "requirements doc" and other ramblings pertaining to The IDECEx below. 
+>Pasting my informal "requirements doc" and other ramblings pertaining to The IDECEx below. I'm not a software engineering manager nor product or project manager, and I don't have a team of frontend devs who will read this and deliver the goods. It's for me to try to focus on deliverables, avoiding scope-creep and resist the ADHD-propensity to shiner things. For more esoteric stuff like what libraries might be well-suited for the visualizations, I may add ChatGPT or Claude (or whatever LLM) to the team, but in any case this is a work in progress, not a released product. 
+
 ______
 ## <ins>The Equation</ins> (Calculation)
 
