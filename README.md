@@ -51,7 +51,7 @@ $$
 Similarly, any other variable can be isolated by rearranging the equation accordingly.
 
 
-## <ins>UI/UX</ins> - Exploration
+## <ins>UI/UX</ins> (Exploration)
 
 ### User Interactivity
 - Interactive Inputs: Each variable should have an input field that allows users to enter or adjust values. To solve for a specific variable, users can leave that field blank or mark it as the one to be calculated.
