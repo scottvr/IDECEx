@@ -1,10 +1,16 @@
 # IDECEx
 Interactive Drake Equation Calculator/Explorer
+______________
+… inspired by a conversation I was having with someone about recognizing an “alien” intelligence in which he brought up the Drake Equation and gave some value for N based on some common “WAG” (wild-ass guess) values for the other variables and showed me an online Drake Equation Calculator, then commenting: “what I’d like to do is be able to give it [the calculator] the number of civilizations (N), and see what probabilities you’d need to …”
 
+The immediate implementation that came to mind would be to just allow the user of the calculator to edit any value in the currently displayed Drake Equation (its html form field), and then adjust the other values with algebraic rearranging of terms so that the equation is, well, equal on both sides.
 
+But, since the initial values are hopefully sane, but admittedly “WAG” numbers, what new values would be appropriate for the variables not in focus? Random WAGs? Increments/decrements based on some rules? Update all of the variable values when calculating? How would the person who expressed the desire for a more flexible Drake Equation Calculator want to explore this?
+
+I started putting some ideas into a text document and threw a small initial barebones calculator up on a webserver. I'm putting it here just to try to be more disciplined and less sloppybwoth personal projects. 
 
 ______
-My informal "requirements doc" and other ramblings pertaining to The IDECEx. 
+Pasting my informal "requirements doc" and other ramblings pertaining to The IDECEx below. 
 ______
 ## <ins>The Equation</ins> (Calculation)
 
