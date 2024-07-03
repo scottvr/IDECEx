@@ -9,6 +9,25 @@
 <body>
     <div class="container">
         <h1>Drake Equation Explorer</h1>
+        <p class="explanation">
+            Adjust the values below to explore different scenarios in the Drake Equation. 
+            Lock variables you want to keep constant, and select which variable you want to solve for.
+        </p>
+        <div id="message-container"></div>
+        <form id="drake-equation-form">
+            <div class="solve-for">
+                <label for="solve-for-select">Solve for:</label>
+                <select id="solve-for-select">
+                    <option value="N">N (Number of Civilizations)</option>
+                    <option value="R_star">R* (Star Formation Rate)</option>
+                    <option value="f_p">f_p (Fraction of Stars with Planets)</option>
+                    <option value="n_e">n_e (Number of Habitable Planets per Star)</option>
+                    <option value="f_l">f_l (Fraction of Habitable Planets with Life)</option>
+                    <option value="f_i">f_i (Fraction of Planets with Intelligent Life)</option>
+                    <option value="f_c">f_c (Fraction of Civilizations that Communicate)</option>
+                    <option value="L">L (Length of Time Civilizations Communicate)</option>
+                </select>
+            </div>
         <div class="variable" id="R_star">
             <label for="R_star_input">R* (Star Formation Rate)</label>
             <input type="number" id="R_star_input" value="1" step="0.1">
@@ -44,10 +63,13 @@
             <input type="number" id="L_input" value="1000" step="100">
             <input type="checkbox" id="L_lock"> Lock
         </div>
-        <div class="result">
-            <label for="N_result">N (Number of Civilizations)</label>
-            <input type="number" id="N_result" readonly>
-        </div>
+            <div class="result">
+                <label for="N_result">N (Number of Civilizations)</label>
+                <input type="number" id="N_result" readonly>
+            </div>
+            <button type="submit">Calculate</button>
+            <button type="button" id="reset-button">Reset to Defaults</button>
+        </form>
     </div>
     <script src="js/calc.js"></script>
 </body>
