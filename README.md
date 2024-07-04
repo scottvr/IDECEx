@@ -86,20 +86,20 @@ ______
   All variables have initial WAG values, and 
 $N$ is calculated.
 
-2. User Inputs $N$:
+2. User selects to solve for $L$:
 
-  The user inputs a specific value for $N$.
+  The user selects via a dropdown, then tweaks, locks, and/or randomizes any other variable values a specific value for $N$.
 
 3. Recalculate: 
 
-  The system identifies $N$ as the dependent variable, locks it, and recalculates the appropriate variable based on which fields are editable and which are locked.
+  The system identifies $L$ as the dependent variable, locks it, and recalculates the appropriate variable based on which fields are editable and which are locked.
 
 4. Interactive Adjustment: 
 
   The user can lock/unlock other variables and see real-time updates as they make adjustments.
 
 ## Example UI Flow
-***can be a single page with a landing section at top, main equation interface section below, and the vast space below that for visualizations.***
+***a single page with a landing section at top, main equation interface section below, and the vast space below that for visualizations.***
 1. Landing: 
  - Briefly introduce the Drake Equation, its purpose, and the interface.
 2. Main Interface:
