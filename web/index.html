@@ -89,14 +89,22 @@
             </div>
             <button type="button" id="reset-button">Reset to Defaults</button>
             <button type="button" id="randomize-button">Randomize Unlocked!</button>
-        <div class="visualization-container">
-          <canvas id="comparativeBarChart"></canvas>
-          <div id="variableRelationshipGraph"></div>
-          <canvas id="probabilityDistributionCurve"></canvas>
-          <div id="galaxyDensityHeatmap"></div>
-        </div>
+          <div class="trace-management">
+              <button id="new-trace-button">Start New Trace</button>
+              <button id="clear-trace-button">Clear Current Trace</button>
+              <select id="trace-select">
+                  <option value="0">Trace 1</option>
+              </select>
+          </div>
+          <div class="visualization-container">
+            <canvas id="comparativeBarChart"></canvas>
+            <div id="variableRelationshipGraph"></div>
+            <canvas id="probabilityDistributionCurve"></canvas>
+            <div id="galaxyDensityHeatmap"></div>
+          </div>
     </div>
-    <script src="js/calc.js"></script>
+    <script type="module" src="js/visualizations.js"></script>
+    <script type="module" src="js/calc.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </body>

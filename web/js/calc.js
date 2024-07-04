@@ -1,10 +1,18 @@
+import { 
+    createOrUpdateComparativeBarChart, 
+    createOrUpdateVariableRelationshipGraph,
+    createOrUpdateProbabilityDistributionCurve,
+    createOrUpdateGalaxyDensityHeatmap,
+    clearAllCharts
+} from './visualizations.js';
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const variables = ["R_star", "f_p", "n_e", "f_l", "f_i", "f_c", "L", "N"];
     const inputs = {};
     const locks = {};
     const divs = {};
     let currentSolveFor = "N"; // Initial solve-for variable
-
     const debouncedCalculate = debounce(calculate, 300);
     
     variables.forEach(variable => {
@@ -15,9 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
         inputs[variable].addEventListener("input", calculate);
         if (locks[variable]) {
             // locks[variable].addEventListener("change", debouncedCalculate);
-            locks[variable].addEventListener("change", calculate);
-            // //// temporarily hide the locks until I remember what they were there to enmable in the first place
-            // locks[variable].style.display = "none";
+            locks[variable].addEventListener("change", updateLockToolTip);
         }
     });
 
@@ -27,6 +33,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('reset-button').addEventListener('click', resetToDefaults);
     document.getElementById('randomize-button').addEventListener('click', randomizeUnlocked);
+
+     document.getElementById('new-trace-button').addEventListener('click', startNewTrace);
+     document.getElementById('clear-trace-button').addEventListener('click', clearCurrentTrace);
+
+    const traceSelect = document.getElementById('trace-select');
+    traceSelect.addEventListener('change', (e) => switchTrace(parseInt(e.target.value)));
+
+
+    function updateLockToolTip() {
+        if (this.checked) {
+          this.title = "Unlock this value";
+        } else {
+          this.title = "Lock this value";
+        }  
+    }
 
     function updateSolveForVariable() {
         const previousSolveFor = currentSolveFor;
@@ -65,6 +86,124 @@ document.addEventListener("DOMContentLoaded", function () {
         return value >= min && value <= max;
     }
 
+    let calculationHistory = {
+       traces: [
+            {
+                id: 1,
+                name: "Trace 1",
+                calculations: [
+                    {
+                        timestamp: Date.now(),
+                        R_star: 1,
+                        f_p: 0.2,
+                        n_e: 1,
+                        f_l: 0.1,
+                        f_i: 0.01,
+                        f_c: 0.1,
+                        L: 1000,
+                        N: 2
+                    }
+                    // ... more calculations
+                ]
+            }
+            // ... more traces
+        ],
+        currentTraceIndex: 0
+    };
+
+    const maxTraces = 5;
+
+    function ensureTraceExists() {
+        if (calculationHistory.traces.length === 0) {
+            calculationHistory.traces.push({
+                id: 1,
+                name: "Trace 1",
+                calculations: []
+            });
+            calculationHistory.currentTraceIndex = 0;
+        }
+    }
+    
+    function addCalculationToCurrentTrace(calculationResult) {
+        ensureTraceExists();
+        calculationHistory.traces[calculationHistory.currentTraceIndex].calculations.push(calculationResult);
+    }
+    
+    function calculate() {
+        const values = {};
+        let isValid = true;
+    
+        variables.forEach(variable => {
+            if (variable !== currentSolveFor && !inputs[variable].readOnly) {
+                const value = parseFloat(inputs[variable].value) || 0;
+                if (validateInput(variable, value)) {
+                    values[variable] = value;
+                } else {
+                    isValid = false;
+                    showError(`Invalid input for ${variable}. Please enter a valid value.`);
+                }
+            }
+        });
+    
+        if (isValid) {
+            const result = solveEquation(currentSolveFor, values);
+            inputs[currentSolveFor].value = result.toFixed(4);
+            
+            // Capture the calculation result
+            const calculationResult = { 
+                timestamp: Date.now(),
+                ...values, 
+                [currentSolveFor]: result 
+            };
+            addCalculationToCurrentTrace(calculationResult);
+            
+            // Update visualizations
+            updateVisualizations();
+        }
+    }
+    
+    function randomizeUnlocked() {
+        variables.forEach(variable => {
+            if (variable !== currentSolveFor && !locks[variable].checked) {
+                inputs[variable].value = getRandomValue(variable);
+            }
+        });
+        calculate();
+    }
+    
+    function startNewTrace() {
+        const newTraceId = calculationHistory.traces.length + 1;
+        calculationHistory.traces.push({
+            id: newTraceId,
+            name: `Trace ${newTraceId}`,
+            calculations: []
+        });
+        calculationHistory.currentTraceIndex = calculationHistory.traces.length - 1;
+        updateTraceSelector();
+    }
+    
+    function updateTraceSelector() {
+        const traceSelect = document.getElementById('trace-select');
+        traceSelect.innerHTML = '';
+        calculationHistory.traces.forEach((trace, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = trace.name;
+            traceSelect.appendChild(option);
+        });
+        traceSelect.value = calculationHistory.currentTraceIndex;
+    }
+    
+    function updateVisualizations() {
+        const currentTrace = calculationHistory.traces[calculationHistory.currentTraceIndex];
+       
+        createOrUpdateComparativeBarChart(processDataForBarChart(currentTrace));
+        createOrUpdateVariableRelationshipGraph(processDataForRelationshipGraph(currentTrace));
+        createOrUpdateProbabilityDistributionCurve(processDataForDistributionCurve(currentTrace));
+        createOrUpdateGalaxyDensityHeatmap(processDataForHeatmap(currentTrace));
+    }
+
+
     function calculate() {
         const values = {};
         let isValid = true;
@@ -76,16 +215,27 @@ document.addEventListener("DOMContentLoaded", function () {
                     values[variable] = value;
                 } else {
                     isValid = false;
-                    showError(`Invalid input for ${variable}. Please enter a value between ${ranges[variable][0]} and ${ranges[variable][1]}.`);
+                    showError(`Invalid input for ${variable}. Please enter a valid value.`);
                 }
             }
         });
-
+    
         if (isValid) {
             const result = solveEquation(currentSolveFor, values);
             inputs[currentSolveFor].value = result.toFixed(4);
+            
+            // Capture the calculation result
+            const calculationResult = { 
+                timestamp: Date.now(),
+                ...values, 
+                [currentSolveFor]: result 
+            };
+            calculationHistory.traces[calculationHistory.currentTraceIndex].calculations.push(calculationResult);
+        
+           // Update visualizations
+            updateVisualizations();
         }
-    }    
+    }
 
     function solveEquation(solveFor, values) {
         const product = variables.reduce((acc, variable) => {
@@ -113,6 +263,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         solveForSelect.value = "N";
         calculate();
+        calculationHistory = {
+            traces: [[]],
+            currentTraceIndex: 0
+        };
+        updateVisualizations();
     }
 
     function showMessage(message, isError = false) {
@@ -130,7 +285,40 @@ document.addEventListener("DOMContentLoaded", function () {
     calculate();
     }
 
+    function switchTrace(index) {
+        if (index >= 0 && index < calculationHistory.traces.length) {
+            calculationHistory.currentTraceIndex = index;
+            clearAllCharts();
+            updateVisualizations();
+        }
+    }
+
+    function initializeTraceManagement() {
+        ensureTraceExists();
+        updateTraceSelector();
+    }
+
+    function clearCurrentTrace() {
+        calculationHistory.traces[calculationHistory.currentTraceIndex] = {
+            id: calculationHistory.traces[calculationHistory.currentTraceIndex].id,
+            name: calculationHistory.traces[calculationHistory.currentTraceIndex].name,
+            calculations: []
+        };
+        clearAllCharts();
+        updateVisualizations();
+    }
+
+    function startNewTrace() {
+        if (calculationHistory.traces.length < maxTraces) {
+            calculationHistory.traces.push([]);
+            calculationHistory.currentTraceIndex = calculationHistory.traces.length - 1;
+        } else {
+            showMessage("Maximum number of traces reached. Please clear a trace to start a new one.");
+        }
+    }
+
     // Initialize the interface
+    initializeTraceManagement();
     updateSolveForVariable();
 });
 
@@ -145,21 +333,60 @@ function showError(message) {
     }, 5000);
 }
 
-function updateVisualization(calculationResults) {
-    // Process calculation results into a format suitable for visualization
-    const visualizationData = processDataForVisualization(calculationResults);
-    createSolarSystemMap(visualizationData);
+// Data processing functions for each visualization
+function processDataForBarChart(trace) {
+    const latestResult = trace.calculations[trace.calculations.length - 1];
+    return {
+        labels: Object.keys(latestResult).filter(key => key !== 'timestamp'),
+        values: Object.values(latestResult).filter((_, index) => Object.keys(latestResult)[index] !== 'timestamp')
+    };
 }
 
-function processDataForVisualization(results) {
-    // Convert calculation results into a format suitable for D3.js
-    // This is a placeholder implementation
+function processDataForRelationshipGraph(trace) {
+    // Let's create a graph showing the relationship between R* and N
     return {
-        stars: [
-            { radius: 5, color: "yellow" },
-            { radius: 3, color: "orange" },
-            // ... more stars based on calculation
-        ]
+        xValues: trace.calculations.map(calc => calc.R_star),
+        yValues: trace.calculations.map(calc => calc.N),
+        xLabel: 'R* (Rate of star formation)',
+        yLabel: 'N (Number of detectable civilizations)'
+    };
+}
+
+function processDataForDistributionCurve(trace) {
+    // Let's create a distribution of N values
+    const nValues = trace.calculations.map(calc => calc.N);
+    const min = Math.min(...nValues);
+    const max = Math.max(...nValues);
+    const range = max - min;
+    const bucketSize = range / 10; // Divide into 10 buckets
+
+    const distribution = Array(10).fill(0);
+    nValues.forEach(n => {
+        const bucketIndex = Math.min(Math.floor((n - min) / bucketSize), 9);
+        distribution[bucketIndex]++;
+    });
+
+    return {
+        xValues: Array(10).fill(0).map((_, i) => min + (i + 0.5) * bucketSize),
+        yValues: distribution,
+        label: 'Distribution of N',
+        xLabel: 'N (Number of detectable civilizations)'
+    };
+}
+
+function processDataForHeatmap(trace) {
+    // Let's create a heatmap showing the relationship between f_i and f_c
+    const gridSize = 10;
+    const heatmapData = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+
+    trace.calculations.forEach(calc => {
+        const xIndex = Math.min(Math.floor(calc.f_i * gridSize), gridSize - 1);
+        const yIndex = Math.min(Math.floor(calc.f_c * gridSize), gridSize - 1);
+        heatmapData[yIndex][xIndex]++;
+    });
+
+    return {
+        densityValues: heatmapData
     };
 }
 
