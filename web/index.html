@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drake Equation Explorer</title>
+    <title>Drake Equation Calculator/Explorer</title>
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
     <div class="container">
-        <h1 title="The Drake Equation is typically rendered as shown below. This calculator lets you select any variable to solve for and explore what happens when you tweak the others.">Drake Equation Explorer</h1>
+        <h1 title="The Drake Equation is typically rendered as shown below. This calculator lets you select any variable to solve for and explore what happens when you tweak the others.">Drake Equation Calculator/Explorer</h1>
         
 <span class="deq-mathtml">
 <span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>N</mi><mo>=</mo><msub><mi>R</mi><mo>∗</mo></msub><mo>×</mo><msub><mi>f</mi><mi>p</mi></msub><mo>×</mo><msub><mi>n</mi><mi>e</mi></msub><mo>×</mo><msub><mi>f</mi><mi>l</mi></msub><mo>×</mo><msub><mi>f</mi><mi>i</mi></msub><mo>×</mo><msub><mi>f</mi><mi>c</mi></msub><mo>×</mo><mi>L</mi></mrow><annotation encoding="application/x-tex">N = R_* \times f_p \times n_e \times f_l \times f_i \times f_c \times L</annotation></semantics></math></span>
 </span></span></span>
 </span>
         <p title="Enter a numeric value into the field, or use the increment/decrement arrows hidden in the right-side edges of the input boxes." class="explanation">
-            Adjust the values below to explore different scenarios in the Drake Equation. 
+            Select the variable of interest and adjust other values to explore different scenarios in the Drake Equation. 
             <br>
-       <!--    Lock variables you want to keep constant --> Select which variable you want to solve for.
+       <!--    Lock variables you want to keep constant Select which variable you want to solve for. -->  <code>Try hovering over symbols or text for additional information or usage tips.</code>
         </p>
         <div id="message-container"></div>
         
@@ -103,6 +103,9 @@
             <div id="galaxyDensityHeatmap"></div>
           </div>
     </div>
+          <div class="footer">
+          <H3> IDECEx v0.3 - <a href="https://github.com/scottvr/IDECEx">github.com/scottvr/IDECEx</A> - scottvr at paperclipmaximizer.ai</H3>
+          </div>
     <script type="module" src="js/visualizations.js"></script>
     <script type="module" src="js/calc.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
