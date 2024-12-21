@@ -1,224 +1,171 @@
+import { Chart } from 'chart.js';
+import Plotly from 'plotly.js-dist';
 
-// Object to store our chart instances
-let chartInstances = {
-    barChart: null,
-    relationshipGraph: null,
-    distributionCurve: null,
-    densityHeatmap: null
-};
-
-export function createOrUpdateComparativeBarChart(data) {
-    const ctx = document.getElementById('comparativeBarChart').getContext('2d');
-    
-    if (chartInstances.barChart) {
-        chartInstances.barChart.destroy();
-    }
-    
-    chartInstances.barChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.labels,
-            datasets: [{
-                label: 'Variable Values',
-                data: data.values,
-                backgroundColor: 'rgba(75, 192, 192, 0.6)'
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-
-export function createOrUpdateVariableRelationshipGraph(data) {
-    if (chartInstances.relationshipGraph) {
-        Plotly.purge('variableRelationshipGraph');
-    }
-    
-    Plotly.newPlot('variableRelationshipGraph', [{
-        x: data.xValues,
-        y: data.yValues,
-        mode: 'markers',
-        type: 'scatter'
-    }], {
-        title: `Relationship between ${data.xLabel} and ${data.yLabel}`,
-        xaxis: { title: data.xLabel },
-        yaxis: { title: data.yLabel }
-    });
-    
-    chartInstances.relationshipGraph = document.getElementById('variableRelationshipGraph');
-}
-
-export function createOrUpdateProbabilityDistributionCurve(data) {
-    const ctx = document.getElementById('probabilityDistributionCurve').getContext('2d');
-    
-    if (chartInstances.distributionCurve) {
-        chartInstances.distributionCurve.destroy();
-    }
-    
-    chartInstances.distributionCurve = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.xValues,
-            datasets: [{
-                label: data.label,
-                data: data.yValues,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: { title: { display: true, text: data.xLabel } },
-                y: { title: { display: true, text: 'Probability' } }
-            }
-        }
-    });
-}
-
-export function createOrUpdateGalaxyDensityHeatmap(data) {
-    if (chartInstances.densityHeatmap) {
-        Plotly.purge('galaxyDensityHeatmap');
-    }
-    
-    Plotly.newPlot('galaxyDensityHeatmap', [{
-        z: data.densityValues,
-        type: 'heatmap',
-        colorscale: 'Viridis'
-    }], {
-        title: 'Galaxy Density Heatmap',
-        xaxis: { title: 'f_i' },
-        yaxis: { title: 'f_c' }
-    });
-    
-    chartInstances.densityHeatmap = document.getElementById('galaxyDensityHeatmap');
-}
-
-// Function to clear all charts
-export function clearAllCharts() {
-    if (chartInstances.barChart) {
-        chartInstances.barChart.destroy();
-    }
-    if (chartInstances.relationshipGraph) {
-        Plotly.purge('variableRelationshipGraph');
-    }
-    if (chartInstances.distributionCurve) {
-        chartInstances.distributionCurve.destroy();
-    }
-    if (chartInstances.densityHeatmap) {
-        Plotly.purge('galaxyDensityHeatmap');
-    }
-    
-    // Reset chart instances
-    chartInstances = {
-        barChart: null,
-        relationshipGraph: null,
-        distributionCurve: null,
-        densityHeatmap: null
+export class DrakeVisualizations {
+  constructor() {
+    this.chartInstances = {
+      barChart: null,
+      relationshipGraph: null,
+      distributionCurve: null,
+      densityHeatmap: null
     };
-}
+  }
 
-export function createComparativeBarChart(data) {
+  createComparativeBarChart(data, model) {
     const ctx = document.getElementById('comparativeBarChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.labels,
-            datasets: [{
-                label: 'Number of Civilizations (N)',
-                data: data.values,
-                backgroundColor: 'rgba(75, 192, 192, 0.6)'
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
+    
+    // Normalize values for better visualization
+    const normalizedValues = this.normalizeValues(data.values);
+    
+    if (this.chartInstances.barChart) {
+      this.chartInstances.barChart.destroy();
+    }
+
+    this.chartInstances.barChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: 'Variable Values (Normalized)',
+          data: normalizedValues,
+          backgroundColor: this.generateColorScale(data.labels.length),
+          borderColor: 'rgba(0, 0, 0, 0.1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            type: 'logarithmic',
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Value (log scale)'
             }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return `Original value: ${data.values[context.dataIndex]}`;
+              }
+            }
+          },
+          legend: {
+            display: true,
+            position: 'top'
+          }
         }
+      }
     });
-}
+  }
 
-export function createVariableRelationshipGraph(data) {
-    Plotly.newPlot('variableRelationshipGraph', [{
-        x: data.xValues,
-        y: data.yValues,
-        mode: 'markers',
-        type: 'scatter'
-    }], {
-        title: `Relationship between ${data.xLabel} and ${data.yLabel}`,
-        xaxis: { title: data.xLabel },
-        yaxis: { title: data.yLabel }
-    });
-}
+  createVariableRelationshipGraph(data, model) {
+    const trace = {
+      x: data.xValues,
+      y: data.yValues,
+      mode: 'markers',
+      type: 'scatter',
+      marker: {
+        size: 8,
+        color: data.xValues,
+        colorscale: 'Viridis',
+        showscale: true
+      }
+    };
 
-export function createProbabilityDistributionCurve(data) {
+    const layout = {
+      title: `Relationship between ${data.xLabel} and ${data.yLabel}`,
+      xaxis: {
+        title: data.xLabel,
+        type: 'log',
+        autorange: true
+      },
+      yaxis: {
+        title: data.yLabel,
+        type: 'log',
+        autorange: true
+      },
+      showlegend: false,
+      margin: { t: 50, l: 60, r: 40, b: 50 }
+    };
+
+    Plotly.newPlot('variableRelationshipGraph', [trace], layout);
+  }
+
+  createProbabilityDistributionCurve(data, model) {
     const ctx = document.getElementById('probabilityDistributionCurve').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.xValues,
-            datasets: [{
-                label: data.label,
-                data: data.yValues,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: { title: { display: true, text: data.xLabel } },
-                y: { title: { display: true, text: 'Probability' } }
+    
+    if (this.chartInstances.distributionCurve) {
+      this.chartInstances.distributionCurve.destroy();
+    }
+
+    // Calculate proper probability distribution
+    const { bins, frequencies } = this.calculateDistribution(data.values);
+
+    this.chartInstances.distributionCurve = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: bins,
+        datasets: [{
+          label: 'Probability Distribution',
+          data: frequencies,
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            type: 'linear',
+            title: {
+              display: true,
+              text: data.xLabel
             }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Probability Density'
+            },
+            beginAtZero: true
+          }
         }
+      }
     });
-}
+  }
 
-export function createGalaxyDensityHeatmap(data) {
-    Plotly.newPlot('galaxyDensityHeatmap', [{
-        z: data.densityValues,
-        type: 'heatmap',
-        colorscale: 'Viridis'
-    }], {
-        title: 'Galaxy Density Heatmap',
-        xaxis: { title: 'X Position' },
-        yaxis: { title: 'Y Position' }
-    });
-}
+  // Helper methods
+  normalizeValues(values) {
+    const max = Math.max(...values.filter(v => isFinite(v)));
+    return values.map(v => v / max);
+  }
 
-export function createSolarSystemMap(data) {
-    const width = 800;
-    const height = 600;
+  generateColorScale(n) {
+    return Array(n).fill().map((_, i) => 
+      `hsla(${(i * 360) / n}, 70%, 50%, 0.6)`
+    );
+  }
 
-    const svg = d3.select("#visualization-container")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+  calculateDistribution(values) {
+    const binCount = Math.ceil(Math.sqrt(values.length));
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const binWidth = (max - min) / binCount;
 
-    const simulation = d3.forceSimulation(data.stars)
-        .force("charge", d3.forceManyBody().strength(-50))
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collision", d3.forceCollide().radius(d => d.radius));
+    const bins = Array(binCount).fill().map((_, i) => 
+      min + (i + 0.5) * binWidth
+    );
 
-    const stars = svg.selectAll("circle")
-        .data(data.stars)
-        .enter()
-        .append("circle")
-        .attr("r", d => d.radius)
-        .attr("fill", d => d.color);
-
-    simulation.on("tick", () => {
-        stars
-            .attr("cx", d => d.x)
-            .attr("cy", d => d.y);
-    });
-}
+    const frequencies = Array(binCount).fill(0);
+    values.forEach(v => {
+      const binIndex = Math.min(
+        Math.floor((v - min) / binWidth),
+        binCount - 1
+      );
+      frequencies[binIndex
