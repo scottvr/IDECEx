@@ -222,3 +222,4 @@ export function createSolarSystemMap(data) {
             .attr("cy", d => d.y);
     });
 }
+

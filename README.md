@@ -12,7 +12,7 @@ But, since the initial values are hopefully sane, but admittedly “WAG” numbe
 I started putting some ideas into a text document and threw a small initial barebones calculator up on a webserver. I'm putting it here just to try to be more disciplined and less sloppy with  personal projects. 
 
 ______
->Pasting my informal "requirements doc" and other ramblings pertaining to The IDECEx below. I'm not a software engineering manager nor product or project manager, and I don't have a team of frontend devs who will read this and deliver the goods. It's for me to try to focus on deliverables, avoiding scope-creep and resist the ADHD-propensity to shiner things. For more esoteric stuff like what libraries might be well-suited for the visualizations, I may add ChatGPT or Claude (or whatever LLM) to the team, but in any case this is a work in progress, not a released product. 
+>Pasting my informal "requirements doc" and other ramblings pertaining to The IDECEx below. I'm not a software engineering manager nor product or project manager, and I don't have a team of frontend devs who will read this and deliver the goods. It's for me to try to focus on deliverables, avoiding scope-creep and resisting the ADHD-propensity to shinier things. For more esoteric stuff like what libraries might be well-suited for the visualizations, I may add ChatGPT or Claude (or whatever LLM) to the team, but in any case this is a work in progress, not a released product. 
 
 ______
 ## <ins>The Equation</ins> (Calculation)
@@ -75,11 +75,10 @@ ______
 - Start with default WAG values for each variable and compute 
 
 ### User Interaction:
-- If a user inputs a value for $N$, the system identifies it as the target variable to solve for. -- _well that's poorly worded and essentially backwards from what really happens.  i address this later in the document with a clarification, but this is a cerebral flatulence, sorta related to the presently disabled (invosible, but there) lock checkboxes.)_
-- Based on which fields are locked and the target variable, the system rearranges the equation and computes the necessary value. -- _yeah mostly thebsame here.. ignore this not well-phrased last few lines_
+- Based on which fields are locked and the target variable, the system rearranges the equation and computes the necessary value. recalculation should happen immediately and dymanically without requiring a "re-calculate" button. 
 
 ### Dynamic Feedback: 
-- Use real-time updates to show the impact of changes immediately. This helps users understand the relationships between variables better.
+- Use real-time updates to show the impact of changes immediately. This helps users understand the relationships between variables better. Later addition of data visualization techniques (charts plots, graphs, 3D animated somulations, who knows?), this will be more evident. 
 
 ## Example Workflow
 1. Default State: 
@@ -87,20 +86,20 @@ ______
   All variables have initial WAG values, and 
 $N$ is calculated.
 
-2. User Inputs $N$:
+2. User selects to solve for $L$:
 
-  The user inputs a specific value for $N$.
+  The user selects via a dropdown, then tweaks, locks, and/or randomizes any other variable values a specific value for $N$.
 
 3. Recalculate: 
 
-  The system identifies $N$ as the dependent variable, locks it, and recalculates the appropriate variable based on which fields are editable and which are locked.
+  The system identifies $L$ as the dependent variable, locks it, and recalculates the appropriate variable based on which fields are editable and which are locked.
 
 4. Interactive Adjustment: 
 
   The user can lock/unlock other variables and see real-time updates as they make adjustments.
 
 ## Example UI Flow
-***can be a single page with a landing section at top, main equation interface section below, and the vast space below that for visualizations.***
+***a single page with a landing section at top, main equation interface section below, and the vast space below that for visualizations.***
 1. Landing: 
  - Briefly introduce the Drake Equation, its purpose, and the interface.
 2. Main Interface:
@@ -167,3 +166,49 @@ When a variable is selected as the target, lock it and adjust the other variable
 *Educational Content:*
 - Provide links to articles, videos, or other resources explaining the Drake Equation and its components in more detail.
 - Include case studies or historical data related to the search for extraterrestrial life.
+
+## Graphs, Plots, and Charts (Oh,my!)
+*Some initial ideas*
+- Scale Solar System Map (using D3.js):
+> Create a zoomable, interactive map showing hypothetical star systems.
+Represent stars of different sizes based on the calculated probability of hosting life.
+Show orbiting planets, with habitable planets highlighted.
+Allow users to click on stars or planets for more detailed information.
+
+
+- Galaxy Density Heatmap:
+> Use a heatmap to represent the density of civilizations across a hypothetical galaxy.
+Colors could range from cool (low density) to hot (high density).
+This could help visualize how changes in variables affect the distribution of civilizations.
+
+
+- Variable Relationship Graphs:
+> Create interactive scatter plots showing relationships between different variables.
+For example, plot N (number of civilizations) against L (longevity of civilizations).
+Allow users to select which variables to plot against each other.
+
+
+- Probability Distribution Curves:
+> For each variable, show a bell curve or other appropriate probability distribution.
+As users adjust values, the curves could update in real-time.
+
+
+- Timeline Visualization:
+> Create a timeline showing the potential evolution of civilizations over time.
+This could be particularly interesting for visualizing the effects of changing the L variable.
+
+
+- Comparative Bar Charts:
+> Show how the current calculation compares to famous estimates or user-saved scenarios.
+This could help users understand how their inputs relate to other well-known Drake Equation estimates.
+
+
+- 3D Galaxy Model:
+> Create a 3D model of a galaxy with stars representing civilizations.
+Allow users to rotate and zoom into the model.
+This could be achieved using Three.js, which works well with D3.js.
+
+
+- Sensitivity Analysis Tornado Chart:
+> Show how sensitive the final result (N) is to changes in each variable.
+This should demonstrate which variables have the most significant impact on the outcome.
