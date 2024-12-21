@@ -10,23 +10,19 @@
     <div class="container">
         <h1 title="The Drake Equation is typically rendered as shown below. This calculator lets you select any variable to solve for and explore what happens when you tweak the others.">Drake Equation Explorer</h1>
         
-        <div class="model-selector">
-            <label for="equation-model">Equation Model:</label>
-            <div class="model-buttons">
-                <button id="classic-model" class="model-button active">Classic Drake</button>
-                <button id="rare-earth-model" class="model-button">Rare Earth</button>
-            </div>
-            <div class="model-description">
-                <div id="classic-description" class="model-info active">
-                    <p>N = R* × fp × ne × fl × fi × fc × L</p>
-                    <small>The original Drake Equation for estimating civilizations in our galaxy.</small>
-                </div>
-                <div id="rare-earth-description" class="model-info">
-                    <p>N = R* × fp × fpm × ne × fg × ft × fi × fc × fl × fm × fj × L</p>
-                    <small>Extended equation incorporating Rare Earth hypothesis factors.</small>
-                </div>
-            </div>
-        </div>
+        <div id="model-toggle-root"></div>
+         <!--//   //<div class="model-description">
+            //    <div id="classic-description" class="model-info active">
+            //        <p>N = R* × fp × ne × fl × fi × fc × L</p>
+            //        <small>The original Drake Equation for estimating civilizations in our galaxy.</small>
+            //    </div>
+            //    <div id="rare-earth-description" class="model-info">
+            //        <p>N = R* × fp × fpm × ne × fg × ft × fi × fc × fl × fm × fj × L</p>
+            //        <small>Extended equation incorporating Rare Earth hypothesis factors.</small>
+            //    </div>
+            //</div>
+        //</div>
+        //-->
         <!-- Equation display -->
         <span class="deq-mathtml" id="equation-display">
             <!-- The equation will be dynamically updated based on model selection -->
@@ -149,5 +145,17 @@
 
 <script type="text/babel" src="js/visualizations/solar/SolarSystem.js"></script>
 <script type="text/babel" src="js/main.js"></script>
+<script type="text/babel">
+    const modelToggleRoot = document.getElementById('model-toggle-root');
+    if (modelToggleRoot) {
+        ReactDOM.render(
+            <ModelToggle 
+                currentModel={window.drakeExplorer.calculator.getCurrentModel()} 
+                onModelChange={(model) => window.drakeExplorer.handleModelChange(model)}
+            />,
+            modelToggleRoot
+        );
+    }
+</script>
 </body>
 </html>
