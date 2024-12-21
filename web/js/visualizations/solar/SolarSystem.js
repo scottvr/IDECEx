@@ -1,5 +1,5 @@
 //import React, { useEffect, useRef, useState } from 'react';
-import { select, forceSimulation, forceManyBody, forceCenter, forceCollide, forceRadial } from 'd3';
+//import { select, forceSimulation, forceManyBody, forceCenter, forceCollide, forceRadial } from 'd3';
 
 const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
     const svgRef = React.useRef(null);
@@ -15,7 +15,7 @@ const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
     
     const width = 800;
     const height = 600;
-    const svg = select(svgRef.current);
+    const svg = d3.select(svgRef.current);
     
     // Clear previous content
     svg.selectAll("*").remove();
