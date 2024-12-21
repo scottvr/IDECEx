@@ -1,7 +1,5 @@
-//import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { select, forceSimulation, forceManyBody, forceCenter, forceCollide, forceRadial } from 'd3';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
 
 const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
     const svgRef = React.useRef(null);
