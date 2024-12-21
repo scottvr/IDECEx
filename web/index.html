@@ -145,17 +145,7 @@
 
 <script type="text/babel" src="js/visualizations/solar/SolarSystem.js"></script>
 <script type="text/babel" src="js/main.js"></script>
-<script type="text/babel">
-    const modelToggleRoot = document.getElementById('model-toggle-root');
-    if (modelToggleRoot) {
-        ReactDOM.render(
-            <ModelToggle 
-                currentModel={window.drakeExplorer.calculator.getCurrentModel()} 
-                onModelChange={(model) => window.drakeExplorer.handleModelChange(model)}
-            />,
-            modelToggleRoot
-        );
-    }
+<script type="text/babel" src="js/ui/ModdleToggle.js">
 </script>
 </body>
 </html>
