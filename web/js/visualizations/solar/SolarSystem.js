@@ -200,7 +200,7 @@ const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
     };
   }, [model, showGalacticZone, animationSpeed]);
   
-  return (
+  return (`
     <Card className="w-full mt-6">
       <CardHeader>
         <CardTitle>Solar System Visualization</CardTitle>
@@ -248,7 +248,7 @@ const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
         </div>
       </CardContent>
     </Card>
-  );
+  `);
 };
 
 function getBodyDescription(type) {
