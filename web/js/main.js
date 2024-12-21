@@ -1,12 +1,3 @@
-import { DrakeCalculator } from './calculator/DrakeCalculator.js';
-import { TraceManager } from './traces/TraceManager.js';
-import { UIManager } from './ui/UIManager.js';
-import { VisualizationManager } from './visualizations/VisualizationManager.js';
-
-
-// When switching models
-vizManager.setModel(newModel);
-
 document.addEventListener("DOMContentLoaded", () => {
     // Initialize core components
     const calculator = new DrakeCalculator();
