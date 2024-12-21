@@ -260,4 +260,5 @@ function getBodyDescription(type) {
   return descriptions[type] || "";
 }
 
-export default SolarSystemViz;
+//export default SolarSystemViz;
+window.SolarSystemViz = SolarSystemViz;
