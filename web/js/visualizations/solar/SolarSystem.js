@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+//import React, { useEffect, useRef, useState } from 'react';
 import { select, forceSimulation, forceManyBody, forceCenter, forceCollide, forceRadial } from 'd3';
 
 const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
