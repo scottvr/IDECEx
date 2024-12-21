@@ -4,11 +4,13 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 
 const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
-  const svgRef = useRef(null);
-  const simulationRef = useRef(null);
-  const [showGalacticZone, setShowGalacticZone] = useState(true);
-  const [animationSpeed, setAnimationSpeed] = useState(1);
-  const [selectedBody, setSelectedBody] = useState(null);
+    const svgRef = React.useRef(null);
+    const [highlightedFactor, setHighlightedFactor] = React.useState(null);
+    const [showLabels, setShowLabels] = React.useState(true);
+    const [animationSpeed, setAnimationSpeed] = React.useState(1);
+    const simulationRef = React.useRef(null);
+    const [showGalacticZone, setShowGalacticZone] = React.useState(true);
+    const [selectedBody, setSelectedBody] = React.useState(null);
   
   useEffect(() => {
     if (!svgRef.current) return;
@@ -199,66 +201,79 @@ const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
       }
     };
   }, [model, showGalacticZone, animationSpeed]);
+};
+
+
+    // ... rest of the component logic ...
   
-  return (
-    <Card className="w-full mt-6">
-      <CardHeader>
-        <CardTitle>Solar System Visualization</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <label className="text-sm font-medium">Animation Speed</label>
-            <Slider 
-              value={[animationSpeed]}
-              min={0.1}
-              max={2}
-              step={0.1}
-              className="w-64"
-              onValueChange={([value]) => setAnimationSpeed(value)}
+    return (
+      <div className="viz-container">
+        <div className="viz-header">
+          <h2 className="viz-title">Solar System Visualization</h2>
+        </div>
+        <div className="viz-content">
+          <div className="viz-controls">
+            <div className="slider-container">
+              <label className="slider-label">Animation Speed</label>
+              <input
+                type="range"
+                min="0.1"
+                max="2"
+                step="0.1"
+                value={animationSpeed}
+                onChange={(e) => setAnimationSpeed(Number(e.target.value))}
+                className="custom-slider"
+              />
+            </div>
+            
+            {model === 'rare-earth' && (
+              <label className="custom-checkbox">
+                <input
+                  type="checkbox"
+                  checked={showLabels}
+                  onChange={(e) => setShowLabels(e.target.checked)}
+                />
+                Show Labels
+              </label>
+            )}
+          </div>
+          
+          <div className="solar-container">
+            <svg
+              ref={svgRef}
+              width="800"
+              height="600"
+              className="w-full h-auto"
             />
           </div>
-          {model === 'rare-earth' && (
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={showGalacticZone}
-                onChange={(e) => setShowGalacticZone(e.target.checked)}
-                id="show-zone"
-              />
-              <label htmlFor="show-zone" className="text-sm font-medium">
-                Show Galactic Habitable Zone
-              </label>
-            </div>
-          )}
-          <svg
-            ref={svgRef}
-            width="800"
-            height="600"
-            className="w-full h-auto border border-gray-200 rounded-lg bg-black"
-          />
-          {selectedBody && (
-            <div className="p-4 bg-gray-100 rounded-lg">
-              <h4 className="font-medium">{selectedBody.name}</h4>
-              <p className="text-sm text-gray-600">
-                {getBodyDescription(selectedBody.type)}
-              </p>
+          
+          {highlightedFactor && (
+            <div className="info-panel">
+              <h4>{getFactorName(highlightedFactor)}</h4>
+              <p>{getFactorDescription(highlightedFactor)}</p>
             </div>
           )}
         </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-function getBodyDescription(type) {
-  const descriptions = {
-    habitable: "A planet in the habitable zone that could potentially support life.",
-    jupiter: "A gas giant that protects inner planets from asteroid impacts.",
-    moon: "A planet with a large moon, helping maintain orbital stability and tides."
+      </div>
+    );
+  
+// Helper functions
+function getFactorName(factor) {
+  const names = {
+    habitable: "Habitable Zone Planet",
+    jupiter: "Jupiter-like Protector",
+    moon: "Planet with Large Moon"
   };
-  return descriptions[type] || "";
+  return names[factor] || factor;
 }
-
-//export default SolarSystemViz;
+  
+function getFactorDescription(factor) {
+  const descriptions = {
+    habitable: "A planet orbiting in the zone where liquid water could exist on its surface.",
+    jupiter: "A large gas giant that helps protect inner planets from asteroid impacts.",
+    moon: "A planet with a large moon that helps stabilize its axial tilt and creates tides."
+  };
+  return descriptions[factor] || "";
+}
+  
 window.SolarSystemViz = SolarSystemViz;
