@@ -1,4 +1,3 @@
-// main.js
 import { DrakeCalculator } from './calculator/DrakeCalculator.js';
 import { TraceManager } from './traces/TraceManager.js';
 import { UIManager } from './ui/UIManager.js';
