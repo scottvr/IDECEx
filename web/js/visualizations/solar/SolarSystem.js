@@ -199,11 +199,7 @@ const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
       }
     };
   }, [model, showGalacticZone, animationSpeed]);
-};
 
-
-    // ... rest of the component logic ...
-  
     return (
       <div className="viz-container">
         <div className="viz-header">
@@ -254,7 +250,8 @@ const SolarSystemViz = ({ model, variables, onFactorHighlight }) => {
         </div>
       </div>
     );
-  
+};
+
 // Helper functions
 function getFactorName(factor) {
   const names = {
