@@ -141,6 +141,7 @@ class TraceManager {
             calculations: []
         }];
         this.currentTraceIndex = 0;
+        this.maxTraces = 5;
     }
     
     addCalculation(calculationResult) {
@@ -153,6 +154,54 @@ class TraceManager {
     
     getCurrentTrace() {
         return this.traces[this.currentTraceIndex];
+    }
+    
+    getCurrentTraceIndex() {
+        return this.currentTraceIndex;
+    }
+    
+    getAllTraces() {
+        return this.traces;
+    }
+    
+    setCurrentTraceIndex(index) {
+        if (index >= 0 && index < this.traces.length) {
+            this.currentTraceIndex = index;
+            return true;
+        }
+        return false;
+    }
+    
+    startNewTrace() {
+        if (this.traces.length >= this.maxTraces) {
+            console.warn(`Maximum number of traces (${this.maxTraces}) reached. Please clear a trace first.`);
+            return false;
+        }
+        
+        const newTraceId = this.traces.length + 1;
+        this.traces.push({
+            id: newTraceId,
+            name: `Trace ${newTraceId}`,
+            calculations: []
+        });
+        
+        this.currentTraceIndex = this.traces.length - 1;
+        return true;
+    }
+    
+    clearCurrentTrace() {
+        if (this.traces[this.currentTraceIndex]) {
+            // Keep the id and name, just clear the calculations
+            this.traces[this.currentTraceIndex].calculations = [];
+        }
+    }
+    
+    renameTrace(index, newName) {
+        if (index >= 0 && index < this.traces.length && newName) {
+            this.traces[index].name = newName;
+            return true;
+        }
+        return false;
     }
 }
 
@@ -283,6 +332,48 @@ document.addEventListener('DOMContentLoaded', () => {
         randomizeButton.addEventListener('click', randomizeUnlocked);
     }
     
+    // Set up trace management buttons
+    const newTraceButton = document.getElementById('new-trace-button');
+    if (newTraceButton) {
+        newTraceButton.addEventListener('click', () => {
+            console.log('Starting new trace');
+            traceManager.startNewTrace();
+            updateTraceSelector();
+        });
+    }
+    
+    const clearTraceButton = document.getElementById('clear-trace-button');
+    if (clearTraceButton) {
+        clearTraceButton.addEventListener('click', () => {
+            console.log('Clearing current trace');
+            traceManager.clearCurrentTrace();
+            updateCharts();
+        });
+    }
+    
+    const renameTraceButton = document.getElementById('rename-trace-button');
+    if (renameTraceButton) {
+        renameTraceButton.addEventListener('click', () => {
+            const currentTrace = traceManager.getCurrentTrace();
+            const newName = prompt("Enter a new name for this trace:", currentTrace.name);
+            
+            if (newName && newName.trim() !== "") {
+                currentTrace.name = newName.trim();
+                updateTraceSelector();
+            }
+        });
+    }
+    
+    // Set up trace selector
+    const traceSelect = document.getElementById('trace-select');
+    if (traceSelect) {
+        traceSelect.addEventListener('change', (e) => {
+            console.log('Switching to trace', e.target.value);
+            traceManager.setCurrentTraceIndex(parseInt(e.target.value));
+            updateCharts();
+        });
+    }
+    
     // UI helper functions
     function updateVariableUI(variable, isSolveFor) {
         const div = document.getElementById(`${variable}_div`);
@@ -360,6 +451,22 @@ document.addEventListener('DOMContentLoaded', () => {
         handleCalculation();
     }
     
+    function updateTraceSelector() {
+        const traceSelect = document.getElementById('trace-select');
+        if (!traceSelect) return;
+        
+        traceSelect.innerHTML = ''; // Clear existing options
+        
+        traceManager.getAllTraces().forEach((trace, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = trace.name || `Trace ${index + 1}`;
+            traceSelect.appendChild(option);
+        });
+        
+        traceSelect.value = traceManager.getCurrentTraceIndex();
+    }
+    
     function updateCharts() {
         try {
             // Skip chart creation if module version is active
@@ -418,6 +525,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // Initialize trace selector
+    updateTraceSelector();
+    
     // Perform initial calculation
     handleCalculation();
     
@@ -425,6 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.standaloneApp = {
         calculator,
         traceManager,
-        handleCalculation
+        handleCalculation,
+        updateTraceSelector
     };
 });
