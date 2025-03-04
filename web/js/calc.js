@@ -135,8 +135,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('reset-button').addEventListener('click', resetToDefaults);
     document.getElementById('randomize-button').addEventListener('click', randomizeUnlocked);
 
-     document.getElementById('new-trace-button').addEventListener('click', startNewTrace);
-     document.getElementById('clear-trace-button').addEventListener('click', clearCurrentTrace);
+    document.getElementById('new-trace-button').addEventListener('click', startNewTrace);
+    document.getElementById('clear-trace-button').addEventListener('click', clearCurrentTrace);
+    document.getElementById('rename-trace-button').addEventListener('click', renameCurrentTrace);
 
     const traceSelect = document.getElementById('trace-select');
     traceSelect.addEventListener('change', (e) => switchTrace(parseInt(e.target.value)));
@@ -297,11 +298,15 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function updateVisualizations() {
         const currentTrace = calculationHistory.traces[calculationHistory.currentTraceIndex];
-       
+        
+        // For single trace visualizations
         createOrUpdateComparativeBarChart(processDataForBarChart(currentTrace));
-        createOrUpdateVariableRelationshipGraph(processDataForRelationshipGraph(currentTrace));
-        createOrUpdateProbabilityDistributionCurve(processDataForDistributionCurve(currentTrace));
         createOrUpdateGalaxyDensityHeatmap(processDataForHeatmap(currentTrace));
+        
+        // For multi-trace visualizations that show comparisons
+        const allTraces = calculationHistory.traces;
+        createOrUpdateVariableRelationshipGraph(processDataForMultiTraceRelationshipGraph(allTraces, currentTrace));
+        createOrUpdateProbabilityDistributionCurve(processDataForMultiTraceDistributionCurve(allTraces));
     }
 
 
@@ -364,10 +369,30 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         solveForSelect.value = "N";
         calculate();
+        
+        // Reset calculation history with proper structure
         calculationHistory = {
-            traces: [[]],
+            traces: [{
+                id: 1,
+                name: "Trace 1",
+                calculations: []
+            }],
             currentTraceIndex: 0
         };
+        
+        // Add the first calculation to the trace
+        const values = {};
+        variables.forEach(v => {
+            values[v] = parseFloat(inputs[v].value) || defaults[v] || 0;
+        });
+        const result = solveEquation("N", values);
+        
+        calculationHistory.traces[0].calculations.push({
+            timestamp: Date.now(),
+            ...values,
+            N: result
+        });
+        
         updateVisualizations();
     }
 
@@ -389,14 +414,47 @@ document.addEventListener("DOMContentLoaded", function () {
     function switchTrace(index) {
         if (index >= 0 && index < calculationHistory.traces.length) {
             calculationHistory.currentTraceIndex = index;
+            
+            // Update UI to reflect the current trace's values
+            const trace = calculationHistory.traces[index];
+            
+            // If the trace has calculations, load the most recent one
+            if (trace.calculations && trace.calculations.length > 0) {
+                const latestCalc = trace.calculations[trace.calculations.length - 1];
+                
+                // Update input fields with values from this calculation
+                variables.forEach(variable => {
+                    if (variable !== currentSolveFor && latestCalc[variable] !== undefined) {
+                        inputs[variable].value = latestCalc[variable];
+                    }
+                });
+                
+                // Update the solve-for variable result
+                inputs[currentSolveFor].value = latestCalc[currentSolveFor];
+            }
+            
             clearAllCharts();
             updateVisualizations();
+            
+            // Update trace selector UI to reflect current trace
+            document.getElementById('trace-select').value = index;
         }
     }
 
     function initializeTraceManagement() {
         ensureTraceExists();
         updateTraceSelector();
+    }
+    
+    function renameCurrentTrace() {
+        const currentTrace = calculationHistory.traces[calculationHistory.currentTraceIndex];
+        const newName = prompt("Enter a new name for this trace:", currentTrace.name);
+        
+        if (newName && newName.trim() !== "") {
+            currentTrace.name = newName.trim();
+            updateTraceSelector();
+            showMessage(`Trace renamed to "${newName.trim()}"`, false);
+        }
     }
 
     function clearCurrentTrace() {
@@ -409,14 +467,8 @@ document.addEventListener("DOMContentLoaded", function () {
         updateVisualizations();
     }
 
-    function startNewTrace() {
-        if (calculationHistory.traces.length < maxTraces) {
-            calculationHistory.traces.push([]);
-            calculationHistory.currentTraceIndex = calculationHistory.traces.length - 1;
-        } else {
-            showMessage("Maximum number of traces reached. Please clear a trace to start a new one.");
-        }
-    }
+    // This function is already defined above - removing duplicate
+    // function startNewTrace() implementation is handled by the version defined earlier
 
     // Initialize the interface
     initializeTraceManagement();
@@ -436,6 +488,14 @@ function showError(message) {
 
 // Data processing functions for each visualization
 function processDataForBarChart(trace) {
+    // Handle empty traces
+    if (!trace.calculations || trace.calculations.length === 0) {
+        return {
+            labels: [],
+            values: []
+        };
+    }
+    
     const latestResult = trace.calculations[trace.calculations.length - 1];
     return {
         labels: Object.keys(latestResult).filter(key => key !== 'timestamp'),
@@ -444,6 +504,16 @@ function processDataForBarChart(trace) {
 }
 
 function processDataForRelationshipGraph(trace) {
+    // Handle empty traces
+    if (!trace.calculations || trace.calculations.length === 0) {
+        return {
+            xValues: [],
+            yValues: [],
+            xLabel: 'R* (Rate of star formation)',
+            yLabel: 'N (Number of detectable civilizations)'
+        };
+    }
+    
     // Let's create a graph showing the relationship between R* and N
     return {
         xValues: trace.calculations.map(calc => calc.R_star),
@@ -453,18 +523,77 @@ function processDataForRelationshipGraph(trace) {
     };
 }
 
+function processDataForMultiTraceRelationshipGraph(traces, currentTrace) {
+    // Create a dataset for each trace
+    const datasets = [];
+    
+    traces.forEach((trace, index) => {
+        if (!trace.calculations || trace.calculations.length === 0) return;
+        
+        // Check if this is the current trace
+        const isCurrent = trace.id === currentTrace.id;
+        
+        datasets.push({
+            x: trace.calculations.map(calc => calc.R_star),
+            y: trace.calculations.map(calc => calc.N),
+            name: trace.name,
+            mode: 'markers',
+            marker: {
+                size: isCurrent ? 10 : 8,
+                opacity: isCurrent ? 1 : 0.6,
+                // Use different colors for different traces
+                color: getTraceColor(index)
+            },
+            type: 'scatter'
+        });
+    });
+    
+    return {
+        datasets: datasets,
+        xLabel: 'R* (Rate of star formation)',
+        yLabel: 'N (Number of detectable civilizations)'
+    };
+}
+
 function processDataForDistributionCurve(trace) {
+    // Handle empty traces
+    if (!trace.calculations || trace.calculations.length === 0) {
+        return {
+            xValues: [],
+            yValues: [],
+            label: 'Distribution of N',
+            xLabel: 'N (Number of detectable civilizations)'
+        };
+    }
+    
     // Let's create a distribution of N values
     const nValues = trace.calculations.map(calc => calc.N);
+    
+    // Handle cases with only one or no values
+    if (nValues.length <= 1) {
+        return {
+            xValues: nValues.length ? [nValues[0]] : [],
+            yValues: nValues.length ? [1] : [],
+            label: 'Distribution of N',
+            xLabel: 'N (Number of detectable civilizations)'
+        };
+    }
+    
     const min = Math.min(...nValues);
     const max = Math.max(...nValues);
     const range = max - min;
-    const bucketSize = range / 10; // Divide into 10 buckets
+    // Avoid division by zero
+    const bucketSize = range > 0 ? range / 10 : 1;
 
     const distribution = Array(10).fill(0);
     nValues.forEach(n => {
-        const bucketIndex = Math.min(Math.floor((n - min) / bucketSize), 9);
-        distribution[bucketIndex]++;
+        // Handle case where all values are the same
+        if (range === 0) {
+            distribution[0]++;
+        } else {
+            const bucketIndex = Math.min(Math.floor((n - min) / bucketSize), 9);
+            distribution[bucketIndex]++;
+        }
     });
 
     return {
@@ -475,7 +604,43 @@ function processDataForDistributionCurve(trace) {
     };
 }
 
+function processDataForMultiTraceDistributionCurve(traces) {
+    // Create datasets for each trace
+    const datasets = [];
+    
+    traces.forEach((trace, index) => {
+        if (!trace.calculations || trace.calculations.length === 0) return;
+        
+        const nValues = trace.calculations.map(calc => calc.N);
+        
+        // Skip traces with no valid N values
+        if (nValues.length === 0) return;
+        
+        datasets.push({
+            label: trace.name,
+            data: nValues,
+            borderColor: getTraceColor(index),
+            borderWidth: 2,
+            fill: false,
+            tension: 0.1
+        });
+    });
+    
+    return {
+        datasets: datasets,
+        xLabel: 'Calculation Index',
+        yLabel: 'N (Number of detectable civilizations)'
+    };
+}
+
 function processDataForHeatmap(trace) {
+    // Handle empty traces
+    if (!trace.calculations || trace.calculations.length === 0) {
+        return {
+            densityValues: Array(10).fill().map(() => Array(10).fill(0))
+        };
+    }
+    
     // Let's create a heatmap showing the relationship between f_i and f_c
     const gridSize = 10;
     const heatmapData = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
@@ -489,6 +654,18 @@ function processDataForHeatmap(trace) {
     return {
         densityValues: heatmapData
     };
+}
+
+// Helper function to get a consistent color for a trace based on its index
+function getTraceColor(index) {
+    const colors = [
+        'rgb(75, 192, 192)',   // Teal
+        'rgb(255, 99, 132)',   // Red
+        'rgb(54, 162, 235)',   // Blue
+        'rgb(255, 206, 86)',   // Yellow
+        'rgb(153, 102, 255)'   // Purple
+    ];
+    return colors[index % colors.length];
 }
 
 function getRandomValue(variable) {
