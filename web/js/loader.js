@@ -149,11 +149,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Create simplified fallback objects
                 try {
                     console.log("Initializing fallback components...");
-                    window.drake = {
+                    
+                    // Expose global dataProcessor for use by visualization components
+                    window.dataProcessor = ${JSON.stringify(window.dataProcessor || {})};
+                    
+                    // Initialize visualization manager if available
+                    let vizManager = null;
+                    if (window.VisualizationManager) {
+                        console.log("Creating visualization manager...");
+                        vizManager = new window.VisualizationManager();
+                    }
+                    
+                    // Create drakeExplorer global for React components
+                    window.drakeExplorer = {
                         calculator: window.DrakeCalculator ? new window.DrakeCalculator() : {},
                         traceManager: window.TraceManager ? new window.TraceManager() : { addCalculation: () => {} },
-                        uiManager: {}
+                        vizManager: vizManager,
+                        
+                        // Add method for ModelToggle component
+                        handleModelChange: function(model) {
+                            console.log('Model changed to:', model);
+                            
+                            if (this.calculator && this.calculator.setModel) {
+                                this.calculator.setModel(model);
+                            }
+                            
+                            if (this.vizManager && this.vizManager.setModel) {
+                                this.vizManager.setModel(model);
+                            }
+                            
+                            // Update equation display
+                            const equationDisplay = document.getElementById('equation-display');
+                            if (equationDisplay) {
+                                if (model === 'classic') {
+                                    equationDisplay.innerHTML = 'N = R<sub>*</sub> × f<sub>p</sub> × n<sub>e</sub> × f<sub>l</sub> × f<sub>i</sub> × f<sub>c</sub> × L';
+                                } else {
+                                    equationDisplay.innerHTML = 'N = R<sub>*</sub> × f<sub>p</sub> × f<sub>pm</sub> × n<sub>e</sub> × f<sub>g</sub> × f<sub>t</sub> × f<sub>i</sub> × f<sub>c</sub> × f<sub>l</sub> × f<sub>m</sub> × f<sub>j</sub> × L';
+                                }
+                            }
+                        }
                     };
+                    
                     console.log("Fallback components created");
                 } catch (e) {
                     console.error("Error initializing fallback components:", e);

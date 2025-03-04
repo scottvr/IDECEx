@@ -139,13 +139,25 @@
     if (window.Babel) {
         console.log('Configuring Babel...');
         try {
-            Babel.registerPreset('myPreset', {
-                presets: [
-                    [Babel.availablePresets['es2015']],
-                    [Babel.availablePresets['react']]
-                ],
+            // Set default options for all Babel transforms
+            Babel.disableScriptTags();
+            
+            // Mark all script tags with type="text/babel" for transformation
+            document.querySelectorAll('script[type="text/babel"]').forEach(script => {
+                script._babelType = 'script';
+            });
+            
+            // Register standard configuration
+            Babel.registerPreset('standard', {
+                presets: ['react', 'es2015'],
                 plugins: []
             });
+            
+            // Transform scripts
+            Babel.transformScriptTags({
+                presets: ['react', 'es2015']
+            });
+            
             console.log('Babel configured successfully');
         } catch (e) {
             console.error('Error configuring Babel:', e);
@@ -162,8 +174,9 @@
 <!-- Fallback loader for better error handling -->
 <script src="./js/loader.js"></script>
 
-<!-- Standalone version that works without modules -->
+<!-- Standalone versions that work without modules -->
 <script src="./js/standalone.js"></script>
+<script src="./js/standalone-viz.js"></script>
 
 <!-- These scripts must be loaded with type="text/babel" for JSX -->
 <script type="text/babel" src="./js/visualizations/solar/SolarSystem.js"></script>
