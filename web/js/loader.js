@@ -70,6 +70,34 @@ document.addEventListener('DOMContentLoaded', () => {
             vizManager = new window.VisualizationManager();
         }
         
+        // Make sure the solve-for select is populated
+        const solveForSelect = document.getElementById("solve-for-select");
+        if (solveForSelect && solveForSelect.children.length === 0) {
+            console.log("Populating solve-for select...");
+            solveForSelect.innerHTML = ''; // Clear existing options
+            calculator.getVariables().forEach(variable => {
+                const option = document.createElement('option');
+                option.value = variable;
+                option.textContent = variable === 'R_star' ? 'R* (Star Formation Rate)' :
+                                   variable === 'f_p' ? 'f_p (Fraction of Stars with Planets)' :
+                                   variable === 'n_e' ? 'n_e (Habitable Planets per Star)' :
+                                   variable === 'f_l' ? 'f_l (Fraction with Life)' :
+                                   variable === 'f_i' ? 'f_i (Fraction with Intelligence)' :
+                                   variable === 'f_c' ? 'f_c (Fraction that Communicate)' :
+                                   variable === 'L' ? 'L (Lifetime of Civilizations)' :
+                                   variable === 'N' ? 'N (Number of Civilizations)' :
+                                   variable === 'f_pm' ? 'f_pm (Metal-rich Planets)' :
+                                   variable === 'f_g' ? 'f_g (Galactic Habitable Zone)' :
+                                   variable === 'f_t' ? 'f_t (Temperature Stability)' :
+                                   variable === 'f_m' ? 'f_m (Large Moon)' :
+                                   variable === 'f_j' ? 'f_j (Jupiter Protection)' : variable;
+                solveForSelect.appendChild(option);
+            });
+            
+            // Set initial value to N
+            solveForSelect.value = 'N';
+        }
+        
         // Create global drakeExplorer object for React components to use
         window.drakeExplorer = {
             calculator,
