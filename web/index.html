@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drake Equation Interactive Calculator/Explorer</title>
     <link rel="stylesheet" href="styles/main.css">
+    <!-- Preload critical libraries -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js" as="script">
+    <link rel="preload" href="https://cdn.plot.ly/plotly-latest.min.js" as="script">
 </head>
 <body>
+    <!-- Debug info -->
+    <div id="debug" style="display:none; padding: 10px; background: #f8f8f8; border: 1px solid #ddd; margin-bottom: 10px;"></div>
+    
     <div class="container">
         <h1 title="The Drake Equation is typically rendered as shown below. This calculator lets you select any variable to solve for and explore what happens when you tweak the others.">Drake Equation Explorer</h1>
         
         <div id="model-toggle-root"></div>
         <!-- Equation display -->
         <span class="deq-mathtml" id="equation-display">
-            <!-- The equation will be dynamically updated based on model selection -->
+            N = R<sub>*</sub> × f<sub>p</sub> × n<sub>e</sub> × f<sub>l</sub> × f<sub>i</sub> × f<sub>c</sub> × L
         </span>
         
         <p title="Enter a numeric value into the field, or use the increment/decrement arrows hidden in the right-side edges of the input boxes." class="explanation">
@@ -133,7 +139,10 @@
 <script type="text/babel" src="js/visualizations/solar/SolarSystem.js"></script>
 <script type="text/babel" src="js/ui/ModelToggle.js"></script>
 
-<!-- Main application entry point -->
-<script type="module" src="js/main.js"></script>
+<!-- Fallback loader for better error handling -->
+<script src="js/loader.js"></script>
+
+<!-- Main application entry point will be loaded by the loader -->
+<!-- <script type="module" src="js/main.js"></script> -->
 </body>
 </html>

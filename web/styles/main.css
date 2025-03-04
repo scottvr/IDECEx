@@ -168,6 +168,44 @@ h1:hover + .deq-mathtml {
     color: #000
 }    
 
+/* Debug panel styles */
+#debug {
+    font-family: monospace;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+#debug .log-entry {
+    margin: 2px 0;
+    padding: 2px 4px;
+    border-left: 3px solid transparent;
+}
+
+#debug .log-entry.log {
+    border-left-color: #4caf50;
+}
+
+#debug .log-entry.error {
+    border-left-color: #f44336;
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+#debug .log-entry.warn {
+    border-left-color: #ff9800;
+    background-color: rgba(255, 152, 0, 0.1);
+}
+
+#debug .log-type {
+    font-weight: bold;
+}
+
+#debug h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+}
+
 .model-selector {
     margin: 20px 0;
     padding: 20px;

@@ -96,6 +96,14 @@ class DrakeExplorer {
 
 // Initialize the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Create the application instance
-    new DrakeExplorer();
+    try {
+        console.log('Initializing DrakeExplorer...');
+        // Create the application instance
+        const app = new DrakeExplorer();
+        window.drakeExplorer = app;
+        console.log('DrakeExplorer initialized successfully!');
+    } catch (error) {
+        console.error('Error initializing DrakeExplorer:', error);
+        console.error('Stack trace:', error.stack);
+    }
 });
