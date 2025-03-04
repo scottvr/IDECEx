@@ -49,11 +49,19 @@ if (debugMode) {
     };
 }
 
+// Flag to indicate which version is active
+window.moduleVersionActive = false;
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing standalone application...');
     
     // Create and initialize the standalone application
     try {
+        // Check if module version is loaded by checking if our charts are initialized
+        if (typeof chartInstances !== 'undefined') {
+            window.moduleVersionActive = true;
+            console.log('Module version detected, standalone charts will be disabled');
+        }
         // Create the main application components using standalone implementation
         console.log("Creating application objects...");
         

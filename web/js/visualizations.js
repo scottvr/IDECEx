@@ -7,6 +7,9 @@ let chartInstances = {
   densityHeatmap: null
 };
 
+// Mark that module version is active
+window.moduleVersionActive = true;
+
 export function createOrUpdateComparativeBarChart(data) {
   const ctx = document.getElementById('comparativeBarChart').getContext('2d');
   

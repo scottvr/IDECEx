@@ -362,14 +362,30 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function updateCharts() {
         try {
+            // Skip chart creation if module version is active
+            if (window.moduleVersionActive) {
+                console.log('Module version active, skipping standalone chart creation');
+                return;
+            }
+            
             // If chart libraries are available, create basic visualizations
             if (window.Chart) {
+                // Destroy existing chart if any
+                if (window.standaloneChartInstances && window.standaloneChartInstances.barChart) {
+                    window.standaloneChartInstances.barChart.destroy();
+                }
+                
                 const trace = traceManager.getCurrentTrace();
                 const barData = dataProcessor.processDataForBarChart(trace);
                 
                 const ctx = document.getElementById('comparativeBarChart');
                 if (ctx) {
-                    new Chart(ctx.getContext('2d'), {
+                    // Store chart instance for later cleanup
+                    if (!window.standaloneChartInstances) {
+                        window.standaloneChartInstances = {};
+                    }
+                    
+                    window.standaloneChartInstances.barChart = new Chart(ctx.getContext('2d'), {
                         type: 'bar',
                         data: {
                             labels: barData.labels,
