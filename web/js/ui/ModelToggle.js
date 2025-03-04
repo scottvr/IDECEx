@@ -40,5 +40,26 @@ const ModelToggle = ({ currentModel, onModelChange }) => {
     );
 };
 
+// Render the component when the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait for the DrakeExplorer instance to be created
+    const checkForExplorer = setInterval(() => {
+        if (window.drakeExplorer) {
+            clearInterval(checkForExplorer);
+            
+            const modelToggleRoot = document.getElementById('model-toggle-root');
+            if (modelToggleRoot) {
+                ReactDOM.render(
+                    <ModelToggle 
+                        currentModel={window.drakeExplorer.calculator.getCurrentModel()} 
+                        onModelChange={(model) => window.drakeExplorer.handleModelChange(model)}
+                    />,
+                    modelToggleRoot
+                );
+            }
+        }
+    }, 100);
+});
+
 // Attach to window for browser usage
 window.ModelToggle = ModelToggle;

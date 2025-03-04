@@ -8,6 +8,9 @@ export class UIManager {
         this.initializeEventListeners();
     }
 
+    /**
+     * Update which variable we're solving for
+     */
     updateSolveForVariable(value) {
         const previousSolveFor = this.currentSolveFor;
         this.currentSolveFor = value;
@@ -18,13 +21,13 @@ export class UIManager {
         // Update UI for new solve-for variable
         this.updateVariableUI(this.currentSolveFor, true);
 
-        // Use the calculator instance to perform calculation
-        const result = this.calculator.calculate(this.currentSolveFor, this.getInputValues());
-        if (this.onCalculationUpdate) {
-            this.onCalculationUpdate(result);
-        }
+        // Run calculation with new solve-for variable
+        this.handleCalculation();
     }
 
+    /**
+     * Get current values from input fields
+     */
     getInputValues() {
         const values = {};
         this.calculator.getVariables().forEach(variable => {
@@ -38,6 +41,9 @@ export class UIManager {
         return values;
     }
 
+    /**
+     * Update UI for a specific variable
+     */
     updateVariableUI(variable, isSolveFor) {
         const div = document.getElementById(`${variable}_div`);
         const input = document.getElementById(`${variable}_input`);
@@ -51,6 +57,9 @@ export class UIManager {
         }
     }
 
+    /**
+     * Handle calculation with debounce
+     */
     handleCalculation = debounce(() => {
         const result = this.calculator.calculate(this.currentSolveFor, this.getInputValues());
         if (this.onCalculationUpdate) {
@@ -58,10 +67,20 @@ export class UIManager {
         }
     }, 300);
 
+    /**
+     * Initialize all UI event listeners
+     */
     initializeEventListeners() {
         // Initialize solve-for select
         const solveForSelect = document.getElementById("solve-for-select");
         if (solveForSelect) {
+            // Populate select options based on current model
+            this.populateSolveForOptions();
+            
+            // Set initial value
+            solveForSelect.value = this.currentSolveFor;
+            
+            // Add event listener
             solveForSelect.addEventListener("change", (e) => 
                 this.updateSolveForVariable(e.target.value)
             );
@@ -76,7 +95,7 @@ export class UIManager {
                 input.addEventListener("input", () => this.handleCalculation());
             }
             if (lock) {
-                lock.addEventListener("change", () => this.handleCalculation());
+                lock.addEventListener("change", () => this.updateLockToolTip(lock));
             }
         });
 
@@ -92,32 +111,179 @@ export class UIManager {
         }
     }
 
-    resetToDefaults() {
-        const defaults = this.calculator.getDefaultValues();
-        Object.entries(defaults).forEach(([variable, value]) => {
-            const input = document.getElementById(`${variable}_input`);
-            const lock = document.getElementById(`${variable}_lock`);
-            if (input) input.value = value;
-            if (lock) lock.checked = false;
-        });
-        this.handleCalculation();
+    /**
+     * Update tooltip for lock checkbox
+     */
+    updateLockToolTip(lockElement) {
+        if (lockElement.checked) {
+            lockElement.title = "Unlock this value";
+        } else {
+            lockElement.title = "Lock this value";
+        }
     }
 
+    /**
+     * Populate solve-for dropdown with options based on model
+     */
+    populateSolveForOptions() {
+        const solveForSelect = document.getElementById("solve-for-select");
+        if (!solveForSelect) return;
+        
+        // Clear existing options
+        solveForSelect.innerHTML = '';
+        
+        // Add options for each variable
+        this.calculator.getVariables().forEach(variable => {
+            const option = document.createElement('option');
+            option.value = variable;
+            option.textContent = this.calculator.getVariableDisplayName(variable);
+            solveForSelect.appendChild(option);
+        });
+    }
+
+    /**
+     * Reset all inputs to default values
+     */
+    resetToDefaults() {
+        const defaults = this.calculator.getDefaultValues();
+        this.calculator.getVariables().forEach(variable => {
+            const input = document.getElementById(`${variable}_input`);
+            const lock = document.getElementById(`${variable}_lock`);
+            
+            if (input && defaults[variable]) {
+                input.value = defaults[variable];
+            }
+            
+            if (lock) {
+                lock.checked = false;
+            }
+        });
+        
+        // Reset solve-for to N
+        const solveForSelect = document.getElementById("solve-for-select");
+        if (solveForSelect) {
+            solveForSelect.value = "N";
+            this.updateSolveForVariable("N");
+        } else {
+            this.handleCalculation();
+        }
+    }
+
+    /**
+     * Randomize all unlocked values
+     */
     randomizeUnlocked() {
         this.calculator.getVariables().forEach(variable => {
             if (variable !== this.currentSolveFor) {
                 const input = document.getElementById(`${variable}_input`);
                 const lock = document.getElementById(`${variable}_lock`);
+                
                 if (input && lock && !lock.checked) {
                     input.value = this.calculator.getRandomValue(variable);
                 }
             }
         });
+        
         this.handleCalculation();
+    }
+
+    /**
+     * Update UI for a new model
+     */
+    updateForModel(model) {
+        // Update solve-for options
+        this.populateSolveForOptions();
+        
+        // Make sure current solve-for is valid for the new model
+        const variables = this.calculator.getVariables();
+        if (!variables.includes(this.currentSolveFor)) {
+            this.updateSolveForVariable('N');
+        }
+        
+        // Show/hide rare earth variables
+        this.updateRareEarthVariablesVisibility(model === 'rare-earth');
+    }
+
+    /**
+     * Show/hide rare earth model variables
+     */
+    updateRareEarthVariablesVisibility(show) {
+        const rareEarthContainer = document.querySelector('.rare-earth-vars');
+        if (!rareEarthContainer) return;
+        
+        // Toggle visibility
+        rareEarthContainer.style.display = show ? 'block' : 'none';
+        
+        // If showing and container is empty, populate it
+        if (show && rareEarthContainer.children.length === 0) {
+            this.populateRareEarthVariables(rareEarthContainer);
+        }
+    }
+
+    /**
+     * Create UI for rare earth variables
+     */
+    populateRareEarthVariables(container) {
+        // Rare Earth specific variables
+        const rareEarthVars = ['f_pm', 'f_g', 'f_t', 'f_m', 'f_j'];
+        
+        // Create a new row for these variables
+        const row = document.createElement('div');
+        row.className = 'equation-row rare-earth-row';
+        
+        // Add each variable
+        rareEarthVars.forEach((variable, index) => {
+            // Add operator between variables
+            if (index > 0) {
+                const operator = document.createElement('span');
+                operator.className = 'operator';
+                operator.textContent = '×';
+                row.appendChild(operator);
+            }
+            
+            // Create variable group
+            const varGroup = document.createElement('div');
+            varGroup.id = `${variable}_div`;
+            varGroup.className = 'variable-group';
+            
+            // Create label
+            const label = document.createElement('label');
+            label.setAttribute('for', `${variable}_input`);
+            label.setAttribute('title', this.calculator.getVariableDescription(variable));
+            label.innerHTML = variable.replace('_', '<sub>') + '</sub>';
+            
+            // Create input
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.id = `${variable}_input`;
+            input.value = this.calculator.getDefaultValues()[variable];
+            input.step = '0.01';
+            input.addEventListener('input', () => this.handleCalculation());
+            
+            // Create lock
+            const lock = document.createElement('input');
+            lock.type = 'checkbox';
+            lock.id = `${variable}_lock`;
+            lock.title = 'Lock this value';
+            lock.addEventListener('change', () => this.updateLockToolTip(lock));
+            
+            // Add elements to the group
+            varGroup.appendChild(label);
+            varGroup.appendChild(input);
+            varGroup.appendChild(lock);
+            
+            // Add group to the row
+            row.appendChild(varGroup);
+        });
+        
+        // Add row to container
+        container.appendChild(row);
     }
 }
 
-// Utility function for debouncing
+/**
+ * Utility function for debouncing
+ */
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -129,80 +295,3 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
-//
-//document.addEventListener("DOMContentLoaded", function () {
-//    const variables = ["R_star", "f_p", "n_e", "f_l", "f_i", "f_c", "L", "N"];
-//    const inputs = {};
-//    const locks = {};
-//    const divs = {};
-//    let currentSolveFor = "N"; // Initial solve-for variable
-//    const debouncedCalculate = debounce(calculate, 300);
-//    
-//    variables.forEach(variable => {
-//        inputs[variable] = document.getElementById(`${variable}_input`);
-//        locks[variable] = document.getElementById(`${variable}_lock`);
-//        divs[variable] = document.getElementById(`${variable}_div`);
-//        // inputs[variable].addEventListener("input", debouncedCalculate);
-//        inputs[variable].addEventListener("input", calculate);
-//        if (locks[variable]) {
-//            // locks[variable].addEventListener("change", debouncedCalculate);
-//            locks[variable].addEventListener("change", updateLockToolTip);
-//        }
-//    });
-//
-//    const solveForSelect = document.getElementById("solve-for-select");
-//    solveForSelect.value = currentSolveFor; // Set initial value
-//    solveForSelect.addEventListener("change", updateSolveForVariable);
-//
-//    document.getElementById('reset-button').addEventListener('click', resetToDefaults);
-//    document.getElementById('randomize-button').addEventListener('click', randomizeUnlocked);
-//
-//     document.getElementById('new-trace-button').addEventListener('click', startNewTrace);
-//     document.getElementById('clear-trace-button').addEventListener('click', clearCurrentTrace);
-//
-//    const traceSelect = document.getElementById('trace-select');
-//    traceSelect.addEventListener('change', (e) => switchTrace(parseInt(e.target.value)));
-//
-//
-//    function updateLockToolTip() {
-//        if (this.checked) {
-//          this.title = "Unlock this value";
-//        } else {
-//          this.title = "Lock this value";
-//        }  
-//    }
-//
-//    function updateSolveForVariable() {
-//        const previousSolveFor = currentSolveFor;
-//        currentSolveFor = solveForSelect.value;
-//        
-//        // Update UI for previous solve-for variable
-//        divs[previousSolveFor].className = 'variable-group';
-//        inputs[previousSolveFor].readOnly = false;
-//        if (locks[previousSolveFor]) {
-//            locks[previousSolveFor].style.display = "inline";
-//        }
-//
-//        // Update UI for new solve-for variable
-//        divs[currentSolveFor].className = 'variable-group result input';
-//        inputs[currentSolveFor].readOnly = true;
-//        if (locks[currentSolveFor]) {
-//            locks[currentSolveFor].style.display = "none";
-//            locks[currentSolveFor].checked = false;
-//        }
-//
-//        calculate();
-//    }
-//});
-//function debounce(func, wait) {
-//    let timeout;
-//    return function executedFunction(...args) {
-//        const later = () => {
-//            clearTimeout(timeout);
-//            func(...args);
-//        };
-//        clearTimeout(timeout);
-//        timeout = setTimeout(later, wait);
-//    };
-//}
-//
