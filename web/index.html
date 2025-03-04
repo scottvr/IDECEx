@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drake Equation Interactive Calculator/Explorer</title>
     <link rel="stylesheet" href="./styles/main.css">
-    <!-- Base path for resolving relative URLs -->
-    <base href="./">
+    <!-- Note: No base tag - it can cause issues with module loading in some browsers -->
     <!-- Preload critical libraries -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js" as="script">
     <link rel="preload" href="https://cdn.plot.ly/plotly-latest.min.js" as="script">
@@ -171,18 +170,95 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-<!-- Fallback loader for better error handling -->
-<script src="./js/loader.js"></script>
-
-<!-- Standalone versions that work without modules -->
+<!-- Standalone versions first - these work without modules -->
 <script src="./js/standalone.js"></script>
 <script src="./js/standalone-viz.js"></script>
 
-<!-- These scripts must be loaded with type="text/babel" for JSX -->
-<script type="text/babel" src="./js/visualizations/solar/SolarSystem.js"></script>
-<script type="text/babel" src="./js/ui/ModelToggle.js"></script>
+<!-- Fallback loader comes last -->
+<script src="./js/loader.js"></script>
 
-<!-- This should be loaded as type="module/babel" for ES modules with JSX -->
-<script type="text/babel" data-type="module" src="./js/main.js"></script>
+<!-- React components - these are loaded separately -->
+<script type="text/babel">
+// Simple check to ensure we're loaded correctly
+console.log("Babel transformer loaded correctly");
+
+// Wait for DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Model toggle component
+    const modelToggleRoot = document.getElementById('model-toggle-root');
+    if (modelToggleRoot) {
+        try {
+            // Define a simple model toggle component
+            const SimpleModelToggle = () => {
+                const [currentModel, setCurrentModel] = React.useState('classic');
+                
+                const handleModelChange = (model) => {
+                    setCurrentModel(model);
+                    
+                    // Update equation display
+                    const equationDisplay = document.getElementById('equation-display');
+                    if (equationDisplay) {
+                        if (model === 'classic') {
+                            equationDisplay.innerHTML = 'N = R<sub>*</sub> × f<sub>p</sub> × n<sub>e</sub> × f<sub>l</sub> × f<sub>i</sub> × f<sub>c</sub> × L';
+                        } else {
+                            equationDisplay.innerHTML = 'N = R<sub>*</sub> × f<sub>p</sub> × f<sub>pm</sub> × n<sub>e</sub> × f<sub>g</sub> × f<sub>t</sub> × f<sub>i</sub> × f<sub>c</sub> × f<sub>l</sub> × f<sub>m</sub> × f<sub>j</sub> × L';
+                        }
+                    }
+                    
+                    // If drakeExplorer is available, use it too
+                    if (window.drakeExplorer && window.drakeExplorer.handleModelChange) {
+                        window.drakeExplorer.handleModelChange(model);
+                    }
+                };
+                
+                const equations = {
+                    classic: "N = R* × fp × ne × fl × fi × fc × L",
+                    "rare-earth": "N = R* × fp × fpm × ne × fg × ft × fi × fc × fl × fm × fj × L"
+                };
+
+                const descriptions = {
+                    classic: "The original Drake Equation estimates the number of communicating civilizations in our galaxy.",
+                    "rare-earth": "The Rare Earth hypothesis extends the Drake Equation to include additional factors that might make complex life rare."
+                };
+                
+                return (
+                    <div className="model-selector">
+                        <div className="toggle-container">
+                            <div className={`toggle-slider ${currentModel}`}></div>
+                            <span 
+                                className={`toggle-option ${currentModel === 'classic' ? 'active' : ''}`}
+                                onClick={() => handleModelChange('classic')}
+                            >
+                                Classic Drake
+                            </span>
+                            <span 
+                                className={`toggle-option ${currentModel === 'rare-earth' ? 'active' : ''}`}
+                                onClick={() => handleModelChange('rare-earth')}
+                            >
+                                Rare Earth
+                            </span>
+                        </div>
+                        
+                        <div className="model-description">
+                            <div className="equation-display">
+                                {equations[currentModel]}
+                            </div>
+                            <div className="model-info">
+                                {descriptions[currentModel]}
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+            
+            // Render component
+            ReactDOM.render(<SimpleModelToggle />, modelToggleRoot);
+            console.log("Model toggle component rendered");
+        } catch (error) {
+            console.error("Failed to render model toggle:", error);
+        }
+    }
+});
+</script>
 </body>
 </html>

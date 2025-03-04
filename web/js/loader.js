@@ -1,5 +1,5 @@
 /**
- * Fallback loader script to handle module loading issues
+ * Simplified initialization script - uses standalone implementations
  * To enable debug mode: Add ?debug=true to the URL
  */
 
@@ -48,184 +48,60 @@ if (debugMode) {
         addLogToDebug('warn', ...args);
     };
 }
+
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Fallback loader starting...');
+    console.log('Initializing standalone application...');
     
-    // Define loader paths to try in order
-    const mainPaths = [
-        './js/main.js',
-        '../js/main.js',
-        'js/main.js'
-    ];
-    
-    // Create script element for Babel-transpiled module
-    function loadModuleScript(path) {
-        return new Promise((resolve, reject) => {
-            // Check if Babel is available
-            if (typeof Babel === 'undefined') {
-                console.error('Babel is not loaded. Cannot transpile modules.');
-                reject(new Error('Babel not available'));
-                return;
-            }
-            
-            // Fetch the module file content
-            fetch(path)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch ${path}: ${response.status} ${response.statusText}`);
-                    }
-                    return response.text();
-                })
-                .then(code => {
-                    // Transpile with Babel
-                    console.log(`Transpiling module ${path}...`);
-                    const transformed = Babel.transform(code, {
-                        presets: ['react', 'es2015'],
-                        plugins: ['transform-modules-systemjs'],
-                        sourceType: 'module'
-                    }).code;
-                    
-                    // Create script element
-                    const script = document.createElement('script');
-                    script.type = 'text/javascript';
-                    script.textContent = transformed;
-                    
-                    // Add to document
-                    document.head.appendChild(script);
-                    console.log(`Successfully loaded and transpiled: ${path}`);
-                    resolve();
-                })
-                .catch(error => {
-                    console.warn(`Failed to load or transpile ${path}:`, error);
-                    reject(error);
-                });
-        });
-    }
-    
-    // Try loading each path in order
-    async function tryLoading() {
-        // First try to load as ES modules
-        for (const path of mainPaths) {
-            try {
-                await loadModuleScript(path);
-                return true; // Success
-            } catch (error) {
-                console.warn(`Failed to load module: ${path}`, error);
-            }
+    // Create and initialize the standalone application
+    try {
+        // Create the main application components using standalone implementation
+        console.log("Creating application objects...");
+        
+        // Create the calculator
+        const calculator = new DrakeCalculator();
+        
+        // Create trace manager
+        const traceManager = new TraceManager();
+        
+        // Create visualization manager
+        let vizManager = null;
+        if (window.VisualizationManager) {
+            console.log("Creating visualization manager...");
+            vizManager = new window.VisualizationManager();
         }
         
-        // If ES modules fail, try direct script loading with individual components
-        console.log("ES Module loading failed, trying direct script loading...");
-        
-        const componentPaths = [
-            './js/calculator/DrakeCalculator.js',
-            './js/traces/TraceManager.js',
-            './js/data/DataProcessor.js',
-            './js/ui/UIManager.js',
-            './js/utils/ChartUtils.js',
-            './js/visualizations/charts/BaseChart.js',
-            './js/visualizations/charts/BarChart.js',
-            './js/visualizations/charts/RelationshipGraph.js',
-            './js/visualizations/charts/DistributionCurve.js',
-            './js/visualizations/charts/HeatmapChart.js',
-            './js/visualizations/VisualizationManager.js',
-        ];
-        
-        try {
-            // Load each component script directly
-            for (const path of componentPaths) {
-                try {
-                    await loadScript(path);
-                    console.log(`Loaded script: ${path}`);
-                } catch (err) {
-                    console.warn(`Failed to load script: ${path}`, err);
+        // Create global drakeExplorer object for React components to use
+        window.drakeExplorer = {
+            calculator,
+            traceManager,
+            vizManager,
+            
+            // Method for model toggle component
+            handleModelChange: function(model) {
+                console.log('Model changed to:', model);
+                
+                if (this.calculator && this.calculator.setModel) {
+                    this.calculator.setModel(model);
+                }
+                
+                if (this.vizManager && this.vizManager.setModel) {
+                    this.vizManager.setModel(model);
+                }
+                
+                // Update equation display
+                const equationDisplay = document.getElementById('equation-display');
+                if (equationDisplay) {
+                    if (model === 'classic') {
+                        equationDisplay.innerHTML = 'N = R<sub>*</sub> × f<sub>p</sub> × n<sub>e</sub> × f<sub>l</sub> × f<sub>i</sub> × f<sub>c</sub> × L';
+                    } else {
+                        equationDisplay.innerHTML = 'N = R<sub>*</sub> × f<sub>p</sub> × f<sub>pm</sub> × n<sub>e</sub> × f<sub>g</sub> × f<sub>t</sub> × f<sub>i</sub> × f<sub>c</sub> × f<sub>l</sub> × f<sub>m</sub> × f<sub>j</sub> × L';
+                    }
                 }
             }
-            
-            // Create a simplified starter script
-            console.log("Creating fallback starter...");
-            const starterScript = document.createElement('script');
-            starterScript.textContent = `
-                // Create simplified fallback objects
-                try {
-                    console.log("Initializing fallback components...");
-                    
-                    // Expose global dataProcessor for use by visualization components
-                    window.dataProcessor = ${JSON.stringify(window.dataProcessor || {})};
-                    
-                    // Initialize visualization manager if available
-                    let vizManager = null;
-                    if (window.VisualizationManager) {
-                        console.log("Creating visualization manager...");
-                        vizManager = new window.VisualizationManager();
-                    }
-                    
-                    // Create drakeExplorer global for React components
-                    window.drakeExplorer = {
-                        calculator: window.DrakeCalculator ? new window.DrakeCalculator() : {},
-                        traceManager: window.TraceManager ? new window.TraceManager() : { addCalculation: () => {} },
-                        vizManager: vizManager,
-                        
-                        // Add method for ModelToggle component
-                        handleModelChange: function(model) {
-                            console.log('Model changed to:', model);
-                            
-                            if (this.calculator && this.calculator.setModel) {
-                                this.calculator.setModel(model);
-                            }
-                            
-                            if (this.vizManager && this.vizManager.setModel) {
-                                this.vizManager.setModel(model);
-                            }
-                            
-                            // Update equation display
-                            const equationDisplay = document.getElementById('equation-display');
-                            if (equationDisplay) {
-                                if (model === 'classic') {
-                                    equationDisplay.innerHTML = 'N = R<sub>*</sub> × f<sub>p</sub> × n<sub>e</sub> × f<sub>l</sub> × f<sub>i</sub> × f<sub>c</sub> × L';
-                                } else {
-                                    equationDisplay.innerHTML = 'N = R<sub>*</sub> × f<sub>p</sub> × f<sub>pm</sub> × n<sub>e</sub> × f<sub>g</sub> × f<sub>t</sub> × f<sub>i</sub> × f<sub>c</sub> × f<sub>l</sub> × f<sub>m</sub> × f<sub>j</sub> × L';
-                                }
-                            }
-                        }
-                    };
-                    
-                    console.log("Fallback components created");
-                } catch (e) {
-                    console.error("Error initializing fallback components:", e);
-                }
-            `;
-            document.head.appendChild(starterScript);
-            return true;
-        } catch (error) {
-            console.error("Fallback script loading failed:", error);
-            return false;
-        }
+        };
+        
+        console.log("Application objects created successfully");
+    } catch (error) {
+        console.error("Error creating application:", error);
     }
-    
-    // Simple script loader
-    function loadScript(path) {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = path;
-            script.onload = () => {
-                console.log(`Successfully loaded script: ${path}`);
-                resolve();
-            };
-            script.onerror = (error) => {
-                console.warn(`Failed to load script: ${path}`, error);
-                reject(error);
-            };
-            document.head.appendChild(script);
-        });
-    }
-    
-    // Start loading
-    tryLoading().then(success => {
-        if (!success) {
-            console.error('All module loading attempts failed');
-            document.getElementById('message-container').textContent = 
-                'Failed to load application. Please check the console for errors.';
-        }
-    });
 });
