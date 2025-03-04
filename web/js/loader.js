@@ -58,21 +58,47 @@ document.addEventListener('DOMContentLoaded', () => {
         '/web/js/main.js'
     ];
     
-    // Create script element for type=module
+    // Create script element for Babel-transpiled module
     function loadModuleScript(path) {
         return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.type = 'module';
-            script.src = path;
-            script.onload = () => {
-                console.log(`Successfully loaded module: ${path}`);
-                resolve();
-            };
-            script.onerror = (error) => {
-                console.warn(`Failed to load module: ${path}`, error);
-                reject(error);
-            };
-            document.head.appendChild(script);
+            // Check if Babel is available
+            if (typeof Babel === 'undefined') {
+                console.error('Babel is not loaded. Cannot transpile modules.');
+                reject(new Error('Babel not available'));
+                return;
+            }
+            
+            // Fetch the module file content
+            fetch(path)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch ${path}: ${response.status} ${response.statusText}`);
+                    }
+                    return response.text();
+                })
+                .then(code => {
+                    // Transpile with Babel
+                    console.log(`Transpiling module ${path}...`);
+                    const transformed = Babel.transform(code, {
+                        presets: ['react', 'es2015'],
+                        plugins: ['transform-modules-systemjs'],
+                        sourceType: 'module'
+                    }).code;
+                    
+                    // Create script element
+                    const script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.textContent = transformed;
+                    
+                    // Add to document
+                    document.head.appendChild(script);
+                    console.log(`Successfully loaded and transpiled: ${path}`);
+                    resolve();
+                })
+                .catch(error => {
+                    console.warn(`Failed to load or transpile ${path}:`, error);
+                    reject(error);
+                });
         });
     }
     

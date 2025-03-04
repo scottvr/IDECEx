@@ -131,18 +131,40 @@
 <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
+<!-- Initialize Babel with presets -->
+<script>
+    // Configure Babel to handle JSX and ES modules
+    if (window.Babel) {
+        console.log('Configuring Babel...');
+        try {
+            Babel.registerPreset('myPreset', {
+                presets: [
+                    [Babel.availablePresets['es2015']],
+                    [Babel.availablePresets['react']]
+                ],
+                plugins: []
+            });
+            console.log('Babel configured successfully');
+        } catch (e) {
+            console.error('Error configuring Babel:', e);
+        }
+    } else {
+        console.error('Babel not loaded! JSX will not work.');
+    }
+</script>
+
 <!-- External libraries -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-<!-- For the solar system visualization -->
-<script type="text/babel" src="js/visualizations/solar/SolarSystem.js"></script>
-<script type="text/babel" src="js/ui/ModelToggle.js"></script>
-
 <!-- Fallback loader for better error handling -->
 <script src="js/loader.js"></script>
 
-<!-- Main application entry point will be loaded by the loader -->
-<!-- <script type="module" src="js/main.js"></script> -->
+<!-- These scripts must be loaded with type="text/babel" for JSX -->
+<script type="text/babel" src="js/visualizations/solar/SolarSystem.js"></script>
+<script type="text/babel" src="js/ui/ModelToggle.js"></script>
+
+<!-- This should be loaded as type="module/babel" for ES modules with JSX -->
+<script type="text/babel" data-type="module" src="js/main.js"></script>
 </body>
 </html>
