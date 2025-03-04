@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drake Equation Interactive Calculator/Explorer</title>
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="./styles/main.css">
+    <!-- Base path for resolving relative URLs -->
+    <base href="./">
     <!-- Preload critical libraries -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js" as="script">
     <link rel="preload" href="https://cdn.plot.ly/plotly-latest.min.js" as="script">
@@ -158,13 +160,16 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <!-- Fallback loader for better error handling -->
-<script src="js/loader.js"></script>
+<script src="./js/loader.js"></script>
+
+<!-- Standalone version that works without modules -->
+<script src="./js/standalone.js"></script>
 
 <!-- These scripts must be loaded with type="text/babel" for JSX -->
-<script type="text/babel" src="js/visualizations/solar/SolarSystem.js"></script>
-<script type="text/babel" src="js/ui/ModelToggle.js"></script>
+<script type="text/babel" src="./js/visualizations/solar/SolarSystem.js"></script>
+<script type="text/babel" src="./js/ui/ModelToggle.js"></script>
 
 <!-- This should be loaded as type="module/babel" for ES modules with JSX -->
-<script type="text/babel" data-type="module" src="js/main.js"></script>
+<script type="text/babel" data-type="module" src="./js/main.js"></script>
 </body>
 </html>

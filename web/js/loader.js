@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Define loader paths to try in order
     const mainPaths = [
         './js/main.js',
-        '/js/main.js',
-        '/web/js/main.js'
+        '../js/main.js',
+        'js/main.js'
     ];
     
     // Create script element for Babel-transpiled module
@@ -104,15 +104,84 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Try loading each path in order
     async function tryLoading() {
+        // First try to load as ES modules
         for (const path of mainPaths) {
             try {
                 await loadModuleScript(path);
                 return true; // Success
             } catch (error) {
-                console.warn(`Failed to load: ${path}`);
+                console.warn(`Failed to load module: ${path}`, error);
             }
         }
-        return false; // All paths failed
+        
+        // If ES modules fail, try direct script loading with individual components
+        console.log("ES Module loading failed, trying direct script loading...");
+        
+        const componentPaths = [
+            './js/calculator/DrakeCalculator.js',
+            './js/traces/TraceManager.js',
+            './js/data/DataProcessor.js',
+            './js/ui/UIManager.js',
+            './js/utils/ChartUtils.js',
+            './js/visualizations/charts/BaseChart.js',
+            './js/visualizations/charts/BarChart.js',
+            './js/visualizations/charts/RelationshipGraph.js',
+            './js/visualizations/charts/DistributionCurve.js',
+            './js/visualizations/charts/HeatmapChart.js',
+            './js/visualizations/VisualizationManager.js',
+        ];
+        
+        try {
+            // Load each component script directly
+            for (const path of componentPaths) {
+                try {
+                    await loadScript(path);
+                    console.log(`Loaded script: ${path}`);
+                } catch (err) {
+                    console.warn(`Failed to load script: ${path}`, err);
+                }
+            }
+            
+            // Create a simplified starter script
+            console.log("Creating fallback starter...");
+            const starterScript = document.createElement('script');
+            starterScript.textContent = `
+                // Create simplified fallback objects
+                try {
+                    console.log("Initializing fallback components...");
+                    window.drake = {
+                        calculator: window.DrakeCalculator ? new window.DrakeCalculator() : {},
+                        traceManager: window.TraceManager ? new window.TraceManager() : { addCalculation: () => {} },
+                        uiManager: {}
+                    };
+                    console.log("Fallback components created");
+                } catch (e) {
+                    console.error("Error initializing fallback components:", e);
+                }
+            `;
+            document.head.appendChild(starterScript);
+            return true;
+        } catch (error) {
+            console.error("Fallback script loading failed:", error);
+            return false;
+        }
+    }
+    
+    // Simple script loader
+    function loadScript(path) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = path;
+            script.onload = () => {
+                console.log(`Successfully loaded script: ${path}`);
+                resolve();
+            };
+            script.onerror = (error) => {
+                console.warn(`Failed to load script: ${path}`, error);
+                reject(error);
+            };
+            document.head.appendChild(script);
+        });
     }
     
     // Start loading
