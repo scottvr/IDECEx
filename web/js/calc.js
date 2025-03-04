@@ -120,7 +120,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Populate solve-for dropdown
     const solveForSelect = document.getElementById("solve-for-select");
+    variables.forEach(variable => {
+        const option = document.createElement("option");
+        option.value = variable;
+        option.textContent = variable;
+        solveForSelect.appendChild(option);
+    });
+    
     solveForSelect.value = currentSolveFor; // Set initial value
     solveForSelect.addEventListener("change", updateSolveForVariable);
 
