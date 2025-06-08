@@ -15,77 +15,104 @@
         <p title="Enter a numeric value into the field, or use the increment/decrement arrows hidden in the right-side edges of the input boxes." class="explanation">
             Select the variable of interest and adjust other values to explore different scenarios in the Drake Equation. 
             <br>
-       <!--    Lock variables you want to keep constant Select which variable you want to solve for. -->  <code>Try hovering over symbols or text for additional information or usage tips.</code>
+            <code>Try hovering over symbols or text for additional information or usage tips.</code>
         </p>
         <div id="message-container"></div>
         
-<div class="drake-equation">
-    <div class="equation-row">
-        <div id="R_star_div" class="variable-group">
-            <label for="R_star_input" title="Average rate of star formation in our galaxy">R*</label>
-            <input type="number" id="R_star_input" value="1" step="0.1">
-            <input type="checkbox" id="R_star_lock" title="Lock this value">
+        <div class="model-switcher">
+            <label><input type="radio" name="equation-model" value="drake" checked> Drake Equation</label>
+            <label><input type="radio" name="equation-model" value="rare-earth"> Rare Earth Hypothesis</label>
         </div>
-        <span class="operator">×</span>
-        <div id="f_p_div" class="variable-group">
-            <label for="f_p_input" title="Fraction of stars that have planets">f<sub>p</sub></label>
-            <input type="number" id="f_p_input" value="0.2" step="0.01">
-            <input type="checkbox" id="f_p_lock" title="Lock this value">
+
+        <div class="drake-equation">
+            <div class="equation-row">
+                <div id="R_star_div" class="variable-group">
+                    <label for="R_star_input" title="Average rate of star formation in our galaxy">R*</label>
+                    <input type="number" id="R_star_input" value="1" step="0.1">
+                    <input type="checkbox" id="R_star_lock" title="Lock this value">
+                </div>
+                <span class="operator">×</span>
+                <div id="f_p_div" class="variable-group">
+                    <label for="f_p_input" title="Fraction of stars that have planets">f<sub>p</sub></label>
+                    <input type="number" id="f_p_input" value="0.2" step="0.01">
+                    <input type="checkbox" id="f_p_lock" title="Lock this value">
+                </div>
+                <span class="operator">×</span>
+                <div id="n_e_div" class="variable-group">
+                    <label for="n_e_input" title="Average number of planets that could potentially support life per star with planets">n<sub>e</sub></label>
+                    <input type="number" id="n_e_input" value="1" step="0.1">
+                    <input type="checkbox" id="n_e_lock" title="Lock this value">
+                </div>
+                <span class="operator">×</span>
+                <div id="f_l_div" class="variable-group">
+                    <label for="f_l_input" title="Fraction of planets that could support life where life actually appears">f<sub>l</sub></label>
+                    <input type="number" id="f_l_input" value="0.1" step="0.01">
+                    <input type="checkbox" id="f_l_lock" title="Lock this value">
+                </div>
+            </div>
+            <div class="equation-row">
+                <div id="f_i_div" class="variable-group">
+                    <label for="f_i_input" title="Fraction of planets with life where intelligent life evolves">f<sub>i</sub></label>
+                    <input type="number" id="f_i_input" value="0.01" step="0.001">
+                    <input type="checkbox" id="f_i_lock" title="Lock this value">
+                </div>
+                <span class="operator">×</span>
+                <div id="f_c_div" class="variable-group">
+                    <label for="f_c_input" title="Fraction of civilizations that develop a technology that releases detectable signs of their existence into space">f<sub>c</sub></label>
+                    <input type="number" id="f_c_input" value="0.1" step="0.01">
+                    <input type="checkbox" id="f_c_lock" title="Lock this value">
+                </div>
+                <span class="operator">×</span>
+                <div id="L_div" class="variable-group">
+                    <label for="L_input" title="Length of time such civilizations release detectable signals into space (log scale)">L</label>
+                    <input type="range" id="L_input" min="2" max="9" step="0.1" value="3">
+                    <span id="L_display" class="value-display">1000 years</span>
+                    <input type="checkbox" id="L_lock" title="Lock this value">
+                </div>
+                <span class="operator">=</span>
+                <div id="N_div" class="variable-group">
+                    <label for="N_input" title="Number of civilizations in our galaxy with which communication might be possible">N</label>
+                    <input type="number" id="N_input" readonly>
+                    <input type="checkbox" id="N_lock" title="Lock this value" style="display: none;">
+                </div>
+            </div>
+            <div class="equation-row rare-earth-factor" style="display: none;">
+                <span class="operator initial-op">×</span>
+                <div id="f_g_div" class="variable-group">
+                    <label for="f_g_input" title="Fraction of stars in the galactic habitable zone">f<sub>g</sub></label>
+                    <input type="number" id="f_g_input" value="0.1" step="0.01">
+                    <input type="checkbox" id="f_g_lock" title="Lock this value">
+                </div>
+                <span class="operator">×</span>
+                <div id="f_pm_div" class="variable-group">
+                    <label for="f_pm_input" title="Fraction of planets with the right planetary mass">f<sub>pm</sub></label>
+                    <input type="number" id="f_pm_input" value="0.1" step="0.01">
+                    <input type="checkbox" id="f_pm_lock" title="Lock this value">
+                </div>
+                <span class="operator">×</span>
+                 <div id="f_jm_div" class="variable-group">
+                    <label for="f_jm_input" title="Fraction of systems with Jupiter-like gas giants">f<sub>jm</sub></label>
+                    <input type="number" id="f_jm_input" value="0.5" step="0.01">
+                    <input type="checkbox" id="f_jm_lock" title="Lock this value">
+                </div>
+            </div>
+             <div class="equation-row rare-earth-factor" style="display: none;">
+                 <span class="operator initial-op">×</span>
+                <div id="f_me_div" class="variable-group">
+                    <label for="f_me_input" title="Fraction of planets with low mass-extinction events">f<sub>me</sub></label>
+                    <input type="number" id="f_me_input" value="0.1" step="0.01">
+                    <input type="checkbox" id="f_me_lock" title="Lock this value">
+                </div>
+                <span class="operator">×</span>
+                <div id="f_ac_div" class="variable-group">
+                    <label for="f_ac_input" title="Fraction of planets with atmosphere-cycling">f<sub>ac</sub></label>
+                    <input type="number" id="f_ac_input" value="0.1" step="0.01">
+                    <input type="checkbox" id="f_ac_lock" title="Lock this value">
+                </div>
+             </div>
         </div>
-        <span class="operator">×</span>
-        <div id="n_e_div" class="variable-group">
-            <label for="n_e_input" title="Average number of planets that could potentially support life per star with planets">n<sub>e</sub></label>
-            <input type="number" id="n_e_input" value="1" step="0.1">
-            <input type="checkbox" id="n_e_lock" title="Lock this value">
-        </div>
-        <span class="operator">×</span>
-        <div id="f_l_div" class="variable-group">
-            <label for="f_l_input" title="Fraction of planets that could support life where life actually appears">f<sub>l</sub></label>
-            <input type="number" id="f_l_input" value="0.1" step="0.01">
-            <input type="checkbox" id="f_l_lock" title="Lock this value">
-        </div>
-    </div>
-    <div class="equation-row">
-        <div id="f_i_div" class="variable-group">
-            <label for="f_i_input" title="Fraction of planets with life where intelligent life evolves">f<sub>i</sub></label>
-            <input type="number" id="f_i_input" value="0.01" step="0.001">
-            <input type="checkbox" id="f_i_lock" title="Lock this value">
-        </div>
-        <span class="operator">×</span>
-        <div id="f_c_div" class="variable-group">
-            <label for="f_c_input" title="Fraction of civilizations that develop a technology that releases detectable signs of their existence into space">f<sub>c</sub></label>
-            <input type="number" id="f_c_input" value="0.1" step="0.01">
-            <input type="checkbox" id="f_c_lock" title="Lock this value">
-        </div>
-        <span class="operator">×</span>
-        <div id="L_div" class="variable-group">
-            <label for="L_input" title="Length of time such civilizations release detectable signals into space">L</label>
-            <input type="number" id="L_input" value="1000" step="100">
-            <input type="checkbox" id="L_lock" title="Lock this value">
-        </div>
-        <span class="operator">=</span>
-        <div id="N_div" class="variable-group">
-            <label for="N_input" title="Number of civilizations in our galaxy with which communication might be possible">N</label>
-            <input type="number" id="N_input" readonly>
-            <input type="checkbox" id="N_lock" title="Lock this value" style="display: none;">
-        </div>
-    </div>
-    <div class="equation-row rare-earth-factor" style="display: none;">
-    <div id="f_g_div" class="variable-group">
-        <label for="f_g_input" title="Fraction of stars in the galactic habitable zone">f<sub>g</sub></label>
-        <input type="number" id="f_g_input" value="0.1" step="0.01">
-    </div>
-    <span class="operator">×</span>
-    <div id="f_pm_div" class="variable-group">
-        <label for="f_pm_input" title="Fraction of planets with the right planetary mass">f<sub>pm</sub></label>
-        <input type="number" id="f_pm_input" value="0.1" step="0.01">
-    </div>
-    </div>
-</div>
-<div class="model-switcher">
-    <label><input type="radio" name="equation-model" value="drake" checked> Drake Equation</label>
-    <label><input type="radio" name="equation-model" value="rare-earth"> Rare Earth Hypothesis</label>
-</div>
+
+        <div class="controls">
             <div class="solve-for">
                 <label for="solve-for-select">Solve for:</label>
                 <select id="solve-for-select">
@@ -97,32 +124,38 @@
                     <option value="f_i">f_i (Fraction of Planets with Intelligent Life)</option>
                     <option value="f_c">f_c (Fraction of Civilizations that Communicate)</option>
                     <option value="L">L (Length of Time Civilizations Communicate)</option>
+                    <option value="f_g">f_g (Galactic Habitable Zone)</option>
+                    <option value="f_pm">f_pm (Planetary Mass)</option>
+                    <option value="f_jm">f_jm (Jupiter-like Shielding)</option>
+                    <option value="f_me">f_me (Mass Extinction Events)</option>
+                    <option value="f_ac">f_ac (Atmosphere Cycling)</option>
                 </select>
             </div>
             <button type="button" id="reset-button">Reset to Defaults</button>
             <button type="button" id="randomize-button">Randomize Unlocked!</button>
-          <div class="trace-management">
-              <button id="new-trace-button">Start New Trace</button>
-              <button id="clear-trace-button">Clear Current Trace</button>
-              <select id="trace-select">
-                  <option value="0">Trace 1</option>
-              </select>
-          </div>
-          <div class="visualization-container">
+            <div class="trace-management">
+                <button id="new-trace-button">Start New Trace</button>
+                <button id="clear-trace-button">Clear Current Trace</button>
+                <select id="trace-select">
+                    <option value="0">Trace 1</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="visualization-container">
             <canvas id="comparativeBarChart"></canvas>
             <div id="variableRelationshipGraph"></div>
             <canvas id="probabilityDistributionCurve"></canvas>
             <div id="galaxyDensityHeatmap"></div>
-          </div>
+        </div>
     </div>
-          <div class="footer">
-          <H3> IDECEx v0.3 - <a href="https://github.com/scottvr/IDECEx">github.com/scottvr/IDECEx</A> - scottvr at paperclipmaximizer.ai</H3>
-          </div>
-    <script type="module" src="js/visualizations.js"></script>
-    <script type="module" src="js/calc.js"></script>
+    <div class="footer">
+        <H3> IDECEx v0.4 - <a href="https://github.com/scottvr/IDECEx">github.com/scottvr/IDECEx</a></H3>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <script>
+    <script type="module" src="js/calc.js"></script>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             fetch('drake-equation.html')
                 .then(response => response.text())
