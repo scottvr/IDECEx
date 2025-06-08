@@ -212,3 +212,22 @@ This could be achieved using Three.js, which works well with D3.js.
 - Sensitivity Analysis Tornado Chart:
 > Show how sensitive the final result (N) is to changes in each variable.
 This should demonstrate which variables have the most significant impact on the outcome.
+
+### Rare Earth Hypothesis
+The Rare Earth Equation can be expressed as:
+
+$$
+N=R_∗ ​×f p ×n e ×f l ×f i ×f c ×L×f g ×f pm ×f jm ×f me ×f ac
+​$$
+ 
+Where the new, highly restrictive factors could include:
+
+$f_g =$ The fraction of stars in the galactic habitable zone.
+
+$f_{pm} =$ The fraction of planets with the right planetary mass.
+
+$f_{jm} =$ The fraction of solar systems with Jupiter-like gas giants to shield inner planets.
+
+$f_{me} =$ The fraction of planets with a sufficiently low number of mass extinction events.
+
+$f_{ac} =$ The fraction of planets with an atmosphere-cycling carbon cycle.
