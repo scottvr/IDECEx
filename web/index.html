@@ -10,10 +10,8 @@
     <div class="container">
         <h1 title="The Drake Equation is typically rendered as shown below. This calculator lets you select any variable to solve for and explore what happens when you tweak the others.">Drake Equation Calculator/Explorer</h1>
         
-<span class="deq-mathtml">
-<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>N</mi><mo>=</mo><msub><mi>R</mi><mo>∗</mo></msub><mo>×</mo><msub><mi>f</mi><mi>p</mi></msub><mo>×</mo><msub><mi>n</mi><mi>e</mi></msub><mo>×</mo><msub><mi>f</mi><mi>l</mi></msub><mo>×</mo><msub><mi>f</mi><mi>i</mi></msub><mo>×</mo><msub><mi>f</mi><mi>c</mi></msub><mo>×</mo><mi>L</mi></mrow><annotation encoding="application/x-tex">N = R_* \times f_p \times n_e \times f_l \times f_i \times f_c \times L</annotation></semantics></math></span>
-</span></span></span>
-</span>
+        <div id="equation-container"></div>
+
         <p title="Enter a numeric value into the field, or use the increment/decrement arrows hidden in the right-side edges of the input boxes." class="explanation">
             Select the variable of interest and adjust other values to explore different scenarios in the Drake Equation. 
             <br>
@@ -72,8 +70,22 @@
             <input type="checkbox" id="N_lock" title="Lock this value" style="display: none;">
         </div>
     </div>
+    <div class="equation-row rare-earth-factor" style="display: none;">
+    <div id="f_g_div" class="variable-group">
+        <label for="f_g_input" title="Fraction of stars in the galactic habitable zone">f<sub>g</sub></label>
+        <input type="number" id="f_g_input" value="0.1" step="0.01">
+    </div>
+    <span class="operator">×</span>
+    <div id="f_pm_div" class="variable-group">
+        <label for="f_pm_input" title="Fraction of planets with the right planetary mass">f<sub>pm</sub></label>
+        <input type="number" id="f_pm_input" value="0.1" step="0.01">
+    </div>
+    </div>
 </div>
-
+<div class="model-switcher">
+    <label><input type="radio" name="equation-model" value="drake" checked> Drake Equation</label>
+    <label><input type="radio" name="equation-model" value="rare-earth"> Rare Earth Hypothesis</label>
+</div>
             <div class="solve-for">
                 <label for="solve-for-select">Solve for:</label>
                 <select id="solve-for-select">
@@ -110,5 +122,15 @@
     <script type="module" src="js/calc.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('drake-equation.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('equation-container').innerHTML = html;
+                })
+                .catch(error => console.error('Error fetching Drake Equation HTML:', error));
+        });
+    </script>
 </body>
 </html>
