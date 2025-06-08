@@ -28,7 +28,7 @@ export function createOrUpdateComparativeBarChart(data) {
             responsive: true,
             scales: {
                 y: {
-                    beginAtZero: true
+                    type: 'logarithmic',
                 }
             }
         }
